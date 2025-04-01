@@ -44,12 +44,21 @@ Agents是封装了特定桌面软件操作能力的功能模块，通过标准�
 
 ```mermaid
 graph TD
-    User[用户] --> |自然语言请求/流程编排| Director
+    User[用户] --> |自然语言请求/流程编排| UI[用户界面层]
+    
+    subgraph "界面层"
+        UI --> |用户交互| WorkflowUI[工作流设计器]
+        UI --> |查询/反馈| AssistantUI[智能助手界面]
+        UI --> |监控/配置| AgentConfigUI[Agent配置面板]
+    end
     
     subgraph "核心程序"
-        Director[Director调度引擎] --> |意图解析| LLM[大语言模型]
+        UI --> Director[Director调度引擎]
+        Director --> |意图解析| LLM[大语言模型]
         LLM --> |任务规划| Director
         Director --> |MCP协议| AgentHub[Agent调度中心]
+        Director <--> |工作流存取| WorkflowManager[工作流管理器]
+        Director <--> |知识检索/存储| KnowledgeBase[知识库]
     end
     
     subgraph "外围Agents"
@@ -71,10 +80,18 @@ graph TD
         Director <--> |指令下达| AgentHub
         AgentHub <--> |状态反馈| Director
     end
+    
+    subgraph "存储层"
+        WorkflowManager <--> |持久化| WorkflowStore[工作流存储]
+        KnowledgeBase <--> |索引/检索| KnowledgeStore[结构化知识存储]
+    end
 
     style Director fill:#f96,stroke:#333,stroke-width:2px
     style AgentHub fill:#69a,stroke:#333,stroke-width:2px
     style LLM fill:#9c7,stroke:#333,stroke-width:2px
+    style WorkflowManager fill:#d9a,stroke:#333,stroke-width:2px
+    style KnowledgeBase fill:#ade,stroke:#333,stroke-width:2px
+    style UI fill:#ffd,stroke:#333,stroke-width:2px
 ```
 
 ### MCP协议工作机制
@@ -85,6 +102,20 @@ MCP(Model-Command-Protocol)是本项目设计的Agent通信标准协议，定义
 2. **调用阶段**：Director基于任务需求，通过标准化指令调用Agent
 3. **执行阶段**：Agent执行具体操作，实时反馈执行状态
 4. **返回阶段**：Agent将执行结果返回Director，完成闭环
+
+### 核心组件功能扩展
+
+#### 工作流管理器
+- **模板管理**：存储和管理用户创建的工作流模板
+- **版本控制**：支持工作流的版本管理与回滚
+- **导入导出**：允许工作流在不同系统间迁移
+- **调度执行**：根据预设条件或定时触发工作流执行
+
+#### 知识库
+- **上下文存储**：保存用户历史交互和执行结果
+- **参考资料**：存储业务规则、文档模板和常用数据
+- **学习优化**：基于历史执行记录优化任务执行路径
+- **个性化定制**：根据用户偏好和使用习惯调整系统行为
 
 ## 用户场景
 
@@ -110,3 +141,17 @@ MCP(Model-Command-Protocol)是本项目设计的Agent通信标准协议，定义
 - 文档翻译与完善
 
 请参考[贡献指南](CONTRIBUTING.md)了解详情。
+
+## 关于作者
+
+**产品经理独孤虾 | AI智能体与大模型应用专家**
+
+产品经理独孤虾拥有20年智能系统架构经验，专注于大模型与AI智能体技术的商业化应用。他曾主导多个亿级DAU平台的AI化升级，构建了基于深度学习的多目标优化算法体系，为企业带来显著的商业价值提升。
+
+在AI领域，他出版了多部专著，包括《Deepseek应用高级教程》(清华大学出版社)、《DeepSeek+Office职场办公效率提升手册》(人民邮电出版社)和《智能营销—大模型如何为运营与产品经理赋能》(清华大学出版社)，系统性地探讨了大模型在商业环境中的落地应用。
+
+他还开设了《智能营销—大模型如何为运营与产品经理赋能》和《Power BI结合业务数据分析实战课》等在线课程，帮助2000多名学员掌握AI应用技能。作为开源项目的倡导者，他创建了Lorn.OpenAgenticAI桌面级"智能体工作流引擎"，致力于推动AI民主化，让复杂的智能自动化能力惠及更多企业和个人用户。
+
+📧 联系方式：fangbing.pm@outlook.com
+💻 更多开源项目请访问作者GitHub
+![微信公众号二维码](参考资料/微信公众号二维码.png){width=200px}
