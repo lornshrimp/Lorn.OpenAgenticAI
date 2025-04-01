@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "build": "dotnet build Lorn.OpenAgenticAI.sln",
+    "test": "dotnet test"
+  }
+}
