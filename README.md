@@ -152,6 +152,6 @@ MCP(Model-Command-Protocol)是本项目设计的Agent通信标准协议，定义
 
 他还开设了《智能营销—大模型如何为运营与产品经理赋能》和《Power BI结合业务数据分析实战课》等在线课程，帮助2000多名学员掌握AI应用技能。作为开源项目的倡导者，他创建了Lorn.OpenAgenticAI桌面级"智能体工作流引擎"，致力于推动AI民主化，让复杂的智能自动化能力惠及更多企业和个人用户。
 
-📧 联系方式：fangbing.pm@outlook.com
+📧 联系方式：lornshrimp.pm@outlook.com
 💻 更多开源项目请访问作者GitHub
 ![微信公众号二维码](参考资料/微信公众号二维码.png){width=200px}
