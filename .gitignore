@@ -1,0 +1,12 @@
+.vs/
+.sarif/
+.devcontainer/
+.vscode/
+.idea/
+.vscode/
+.vscode-test/
+.vscode-test-insiders/
+.vscode-insiders/
+.vscode-insiders-test/
+.vscode-insiders-test-insiders
+.fake
