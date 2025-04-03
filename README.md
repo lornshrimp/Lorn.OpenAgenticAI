@@ -154,4 +154,4 @@ MCP(Model-Command-Protocol)是本项目设计的Agent通信标准协议，定义
 
 📧 联系方式：lornshrimp.pm@outlook.com
 💻 更多开源项目请访问作者GitHub
-![微信公众号二维码](参考资料/微信公众号二维码.png){width=200px}
+![微信公众号二维码](作者信息/微信公众号二维码.png){width=200px}
