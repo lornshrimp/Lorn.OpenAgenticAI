@@ -5,13 +5,54 @@ VisualStudioVersion = 17.14.35906.104
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{9FA3D6BD-1EC1-3BA5-80CB-CE02773A58D5}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Author", "Author", "{A2CAE83B-64FD-9C88-48E7-995F37F8EEEC}"
+	ProjectSection(SolutionItems) = preProject
+		Author\https___github.com_lornshrimp.png = Author\https___github.com_lornshrimp.png
+		Author\https___item.jd.com_14795878.html.png = Author\https___item.jd.com_14795878.html.png
+		Author\作者简历.md = Author\作者简历.md
+		Author\微信二维码.jpg = Author\微信二维码.jpg
+		Author\微信公众号二维码.png = Author\微信公众号二维码.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_ProductDesign", "docs_ProductDesign", "{518E739E-0AF9-1B82-3F58-035671D6D7BE}"
+	ProjectSection(SolutionItems) = preProject
+		docs_ProductDesign\BusinessProcessFlow.md = docs_ProductDesign\BusinessProcessFlow.md
+		docs_ProductDesign\CoreBusinessObjects.md = docs_ProductDesign\CoreBusinessObjects.md
+		docs_ProductDesign\DevelopmentPriorities.md = docs_ProductDesign\DevelopmentPriorities.md
+		docs_ProductDesign\ModuleFunctionList.md = docs_ProductDesign\ModuleFunctionList.md
+		docs_ProductDesign\ReportGenerationScenario.md = docs_ProductDesign\ReportGenerationScenario.md
+		docs_ProductDesign\WebDataAnalysisScenario.md = docs_ProductDesign\WebDataAnalysisScenario.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Director调度引擎", "Director调度引擎", "{0E36DDFA-7054-1179-F5D5-BF4A7887949A}"
+	ProjectSection(SolutionItems) = preProject
+		docs_ProductDesign\Director调度引擎\BusinessObjects.md = docs_ProductDesign\Director调度引擎\BusinessObjects.md
+		docs_ProductDesign\Director调度引擎\InterfaceDesign.md = docs_ProductDesign\Director调度引擎\InterfaceDesign.md
+		docs_ProductDesign\Director调度引擎\README.md = docs_ProductDesign\Director调度引擎\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_ProjectManage", "docs_ProjectManage", "{E9CF29E0-EB03-41D9-BAF9-ED753ED7EFBD}"
+	ProjectSection(SolutionItems) = preProject
+		docs_ProjectManage\ProjectGanttChart.md = docs_ProjectManage\ProjectGanttChart.md
+		docs_ProjectManage\ProjectTaskBreakdown.md = docs_ProjectManage\ProjectTaskBreakdown.md
+		docs_ProjectManage\ProjectWorkItems.md = docs_ProjectManage\ProjectWorkItems.md
+		docs_ProjectManage\README.md = docs_ProjectManage\README.md
+		docs_ProjectManage\RiskManagementPlan.md = docs_ProjectManage\RiskManagementPlan.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_TecDesign", "docs_TecDesign", "{A6AE2BB0-378D-1E31-3FE0-7DAF5035C67B}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0E36DDFA-7054-1179-F5D5-BF4A7887949A} = {518E739E-0AF9-1B82-3F58-035671D6D7BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CA1D927-5DEF-4DF9-9A04-FB9E61983FAD}
