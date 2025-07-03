@@ -46,6 +46,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_ProjectManage", "docs_
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_TecDesign", "docs_TecDesign", "{A6AE2BB0-378D-1E31-3FE0-7DAF5035C67B}"
+	ProjectSection(SolutionItems) = preProject
+		docs_TecDesign\MCPProtocolDesign.md = docs_TecDesign\MCPProtocolDesign.md
+		docs_TecDesign\TechnicalArchitecture.md = docs_TecDesign\TechnicalArchitecture.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
