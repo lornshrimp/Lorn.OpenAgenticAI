@@ -24,7 +24,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_ProductDesign", "docs_
 		docs_ProductDesign\BusinessProcessFlow.md = docs_ProductDesign\BusinessProcessFlow.md
 		docs_ProductDesign\CoreBusinessObjects.md = docs_ProductDesign\CoreBusinessObjects.md
 		docs_ProductDesign\DevelopmentPriorities.md = docs_ProductDesign\DevelopmentPriorities.md
+		docs_ProductDesign\LLMManagement.md = docs_ProductDesign\LLMManagement.md
+		docs_ProductDesign\MCPConfiguration.md = docs_ProductDesign\MCPConfiguration.md
 		docs_ProductDesign\ModuleFunctionList.md = docs_ProductDesign\ModuleFunctionList.md
+		docs_ProductDesign\PersistentDataStructureDesign.md = docs_ProductDesign\PersistentDataStructureDesign.md
 		docs_ProductDesign\ReportGenerationScenario.md = docs_ProductDesign\ReportGenerationScenario.md
 		docs_ProductDesign\WebDataAnalysisScenario.md = docs_ProductDesign\WebDataAnalysisScenario.md
 	EndProjectSection
@@ -47,16 +50,47 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_ProjectManage", "docs_
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs_TecDesign", "docs_TecDesign", "{A6AE2BB0-378D-1E31-3FE0-7DAF5035C67B}"
 	ProjectSection(SolutionItems) = preProject
+		docs_TecDesign\DataAccessLayerDesign.md = docs_TecDesign\DataAccessLayerDesign.md
+		docs_TecDesign\DirectorEngineDesign.md = docs_TecDesign\DirectorEngineDesign.md
+		docs_TecDesign\LLMAdapterDesign.md = docs_TecDesign\LLMAdapterDesign.md
 		docs_TecDesign\MCPProtocolDesign.md = docs_TecDesign\MCPProtocolDesign.md
+		docs_TecDesign\MCPProtocolEngineDesign.md = docs_TecDesign\MCPProtocolEngineDesign.md
+		docs_TecDesign\PersistentDataStructureDesign.md = docs_TecDesign\PersistentDataStructureDesign.md
 		docs_TecDesign\TechnicalArchitecture.md = docs_TecDesign\TechnicalArchitecture.md
+		docs_TecDesign\WorkflowEngineDesign.md = docs_TecDesign\WorkflowEngineDesign.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{996CEBED-A05B-5D42-3FF0-982E087A2599}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{06CFFD70-14AA-A959-A3BA-1B15D094E3B1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{A74F262E-BDE7-D5D2-89E9-785413424D0A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Agents", "Agents", "{B33F7F66-95C7-97AE-2462-F6D15419E3EF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4F52FD11-658E-A102-6CD3-7D7C16FFA15B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.Domain.Models", "Domain\Lorn.Domain.Models\Lorn.Domain.Models.csproj", "{DC98CC13-7D71-4FEB-A327-8427EE2FCF82}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC98CC13-7D71-4FEB-A327-8427EE2FCF82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC98CC13-7D71-4FEB-A327-8427EE2FCF82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC98CC13-7D71-4FEB-A327-8427EE2FCF82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC98CC13-7D71-4FEB-A327-8427EE2FCF82}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0E36DDFA-7054-1179-F5D5-BF4A7887949A} = {518E739E-0AF9-1B82-3F58-035671D6D7BE}
+		{DC98CC13-7D71-4FEB-A327-8427EE2FCF82} = {996CEBED-A05B-5D42-3FF0-982E087A2599}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CA1D927-5DEF-4DF9-9A04-FB9E61983FAD}
