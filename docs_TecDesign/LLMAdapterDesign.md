@@ -12,7 +12,7 @@
 
 ### 1.1 设计目标
 
-LLM适配器作为Lorn.OpenAgenticAI系统的核心组件，位于`3.Domain/Lorn.Domain.LLM/`项目中，基于Microsoft.SemanticKernel框架构建，负责业务层面的LLM服务管理和调度。其主要设计目标包括：
+LLM适配器作为Lorn.OpenAgenticAI系统的核心组件，位于`3.Domain/Lorn.OpenAgenticAI.Domain.LLM/`项目中，基于Microsoft.SemanticKernel框架构建，负责业务层面的LLM服务管理和调度。其主要设计目标包括：
 
 - **SemanticKernel集成**: 基于Microsoft.SemanticKernel构建，复用其成熟的LLM抽象层
 - **业务逻辑封装**: 在SemanticKernel基础上添加业务特定的模型管理和调度逻辑
@@ -65,7 +65,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "LLM适配器 (Lorn.Domain.LLM)"
+    subgraph "LLM适配器 (Lorn.OpenAgenticAI.Domain.LLM)"
         subgraph "业务服务层"
             LLMService[LLMService]
             ModelManager[ModelManager]
@@ -247,19 +247,19 @@ classDiagram
 
 **接口职责说明**：
 
-#### 3.1.1 ILLMService (位置: Lorn.Shared.Contracts/)
+#### 3.1.1 ILLMService (位置: Lorn.OpenAgenticAI.Shared.Contracts/)
 
 - **核心职责**: 提供统一的LLM服务接口，封装SemanticKernel复杂性
 - **主要方法**: 基于SemanticKernel的文本生成、流式响应、对话处理、函数调用
 - **设计要点**: 复用SemanticKernel的ChatHistory和ChatMessageContent等成熟抽象
 
-#### 3.1.2 IKernelManager (位置: Lorn.Shared.Contracts/)
+#### 3.1.2 IKernelManager (位置: Lorn.OpenAgenticAI.Shared.Contracts/)
 
 - **核心职责**: 管理SemanticKernel实例的生命周期和服务注册
 - **主要功能**: Kernel创建、服务注册、智能选择、资源管理
 - **设计要点**: 封装SemanticKernel的复杂初始化逻辑，提供简单易用的管理接口
 
-#### 3.1.3 IModelManager (位置: Lorn.Shared.Contracts/)
+#### 3.1.3 IModelManager (位置: Lorn.OpenAgenticAI.Shared.Contracts/)
 
 - **核心职责**: 管理模型元数据和配置，配合SemanticKernel进行模型管理
 - **主要功能**: 模型注册、发现、选择、配置管理
@@ -348,7 +348,7 @@ classDiagram
 
 **数据模型设计说明**：
 
-#### 3.2.1 请求响应模型 (位置: Lorn.Shared.Models/LLM/)
+#### 3.2.1 请求响应模型 (位置: Lorn.OpenAgenticAI.Shared.Models/LLM/)
 
 **LLMRequest**:
 
@@ -362,7 +362,7 @@ classDiagram
 - **核心信息**: 保留原始ChatMessageContent、添加使用统计和性能指标
 - **错误处理**: 统一的错误处理机制，兼容SemanticKernel异常体系
 
-#### 3.2.2 配置管理模型 (位置: Lorn.Shared.Models/LLM/)
+#### 3.2.2 配置管理模型 (位置: Lorn.OpenAgenticAI.Shared.Models/LLM/)
 
 **ModelConfiguration**:
 
@@ -380,7 +380,7 @@ classDiagram
 
 ```mermaid
 graph TD
-    subgraph "业务服务层 (Lorn.Domain.LLM/Services/)"
+    subgraph "业务服务层 (Lorn.OpenAgenticAI.Domain.LLM/Services/)"
         LLMService[LLMService]
         RequestRouter[RequestRouter]
         ModelManager[ModelManager]
@@ -466,7 +466,7 @@ flowchart TD
     Error2 --> End
 ```
 
-**LLMService设计说明** (位置: Lorn.Domain.LLM/Services/LLMService.cs):
+**LLMService设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Services/LLMService.cs):
 
 - **核心职责**: 基于SemanticKernel提供统一的LLM服务接口
 - **处理流程**: 请求验证 → 缓存检查 → 路由到Kernel → 调用IChatCompletionService → 响应处理
@@ -501,7 +501,7 @@ stateDiagram-v2
     销毁中 --> 未初始化 : 销毁完成
 ```
 
-**KernelManager设计说明** (位置: Lorn.Domain.LLM/Services/KernelManager.cs):
+**KernelManager设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Services/KernelManager.cs):
 
 - **核心职责**: 管理SemanticKernel实例的完整生命周期
 - **状态管理**: 配置加载 → Kernel创建 → 服务注册 → 运行 → 销毁的完整状态机
@@ -532,7 +532,7 @@ stateDiagram-v2
     返回路由结果 --> [*]
 ```
 
-**RequestRouter设计说明** (位置: Lorn.Domain.LLM/Services/RequestRouter.cs):
+**RequestRouter设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Services/RequestRouter.cs):
 
 - **核心职责**: 智能路由请求到最优的Kernel实例和ChatCompletionService
 - **路由策略**: Kernel健康检查 → 服务获取 → 请求转换 → 执行设置应用
@@ -639,7 +639,7 @@ sequenceDiagram
 
 **基于SemanticKernel连接器的设计说明**：
 
-#### 3.4.3 LLMServiceRegistry (位置: Lorn.Domain.LLM/Services/LLMServiceRegistry.cs)
+#### 3.4.3 LLMServiceRegistry (位置: Lorn.OpenAgenticAI.Domain.LLM/Services/LLMServiceRegistry.cs)
 
 - **职责**: 封装SemanticKernel的服务注册复杂性，提供业务友好的注册接口
 - **特殊处理**:
@@ -647,7 +647,7 @@ sequenceDiagram
   - 支持多个同类型服务的注册（如多个OpenAI配置）
   - 服务优先级和负载均衡策略
 
-#### 3.4.4 配置管理 (位置: Lorn.Domain.LLM/Configuration/)
+#### 3.4.4 配置管理 (位置: Lorn.OpenAgenticAI.Domain.LLM/Configuration/)
 
 - **OpenAIConfiguration**: 封装OpenAI API的配置参数
 - **AzureOpenAIConfiguration**: 封装Azure OpenAI服务的配置参数  
@@ -668,7 +668,7 @@ sequenceDiagram
 
 ```mermaid
 graph TB
-    subgraph "基础组件层 (Lorn.Domain.LLM/Infrastructure/)"
+    subgraph "基础组件层 (Lorn.OpenAgenticAI.Domain.LLM/Infrastructure/)"
         subgraph "连接管理"
             ConnectionPoolManager[ConnectionPoolManager]
             HttpConnectionPool[HttpConnectionPool]
@@ -738,7 +738,7 @@ stateDiagram-v2
     清理过期连接 --> 空闲状态
 ```
 
-**连接池管理设计说明** (位置: Lorn.Domain.LLM/Infrastructure/ConnectionPoolManager.cs):
+**连接池管理设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Infrastructure/ConnectionPoolManager.cs):
 
 - **设计目标**: 高效管理HTTP连接，避免连接创建开销
 - **核心特性**:
@@ -772,7 +772,7 @@ flowchart TD
     Return3 --> End
 ```
 
-**响应缓存设计说明** (位置: Lorn.Domain.LLM/Infrastructure/ResponseCache.cs):
+**响应缓存设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Infrastructure/ResponseCache.cs):
 
 - **设计目标**: 提供多级缓存策略，最大化响应性能
 - **缓存策略**:
@@ -810,7 +810,7 @@ graph LR
     AlertEngine --> NotificationService
 ```
 
-**指标收集器设计说明** (位置: Lorn.Domain.LLM/Infrastructure/MetricsCollector.cs):
+**指标收集器设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Infrastructure/MetricsCollector.cs):
 
 - **设计目标**: 全面收集系统运行指标，支持性能监控和问题诊断
 - **关键指标**:
@@ -848,7 +848,7 @@ stateDiagram-v2
     }
 ```
 
-**熔断器设计说明** (位置: Lorn.Domain.LLM/Resilience/CircuitBreaker.cs):
+**熔断器设计说明** (位置: Lorn.OpenAgenticAI.Domain.LLM/Resilience/CircuitBreaker.cs):
 
 - **设计目标**: 防止级联故障，提供快速失败机制
 - **状态管理**: 关闭 → 开启 → 半开启的标准熔断器状态机

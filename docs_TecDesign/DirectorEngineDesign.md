@@ -110,7 +110,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "Lorn.Application.Director - Director应用服务"
+    subgraph "Lorn.OpenAgenticAI.Application.Director - Director应用服务"
         DS[Director服务]
         TPS[任务规划服务]
         AOS[Agent编排服务]
@@ -214,7 +214,7 @@ classDiagram
     ITaskPlanner --> IExecutionPlanOptimizer
 ```
 
-**实现位置**: `src/2.Application/Lorn.Application.Director/Planning/`
+**实现位置**: `src/2.Application/Lorn.OpenAgenticAI.Application.Director/Planning/`
 
 #### 2.2.2 Agent编排器 (Agent Orchestrator)
 
@@ -260,7 +260,7 @@ classDiagram
     IAgentOrchestrator --> IFailureHandler
 ```
 
-**实现位置**: `src/2.Application/Lorn.Application.Director/Orchestration/`
+**实现位置**: `src/2.Application/Lorn.OpenAgenticAI.Application.Director/Orchestration/`
 
 #### 2.2.3 执行监控器 (Execution Monitor)
 
@@ -305,7 +305,7 @@ classDiagram
     IExecutionMonitor --> IAnomalyDetector
 ```
 
-**实现位置**: `src/2.Application/Lorn.Application.Director/Monitoring/`
+**实现位置**: `src/2.Application/Lorn.OpenAgenticAI.Application.Director/Monitoring/`
 
 #### 2.2.4 上下文管理器 (Context Manager)
 
@@ -353,7 +353,7 @@ classDiagram
     IContextManager --> IKnowledgeGraphManager
 ```
 
-**实现位置**: `src/2.Application/Lorn.Application.Director/Context/`
+**实现位置**: `src/2.Application/Lorn.OpenAgenticAI.Application.Director/Context/`
 
 ## 3. 核心算法设计
 
@@ -635,7 +635,7 @@ stateDiagram-v2
 #### 5.1.1 Director主服务接口
 
 ```csharp
-namespace Lorn.Application.Director.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Director.Interfaces
 {
     /// <summary>
     /// Director调度引擎核心服务接口
@@ -683,7 +683,7 @@ namespace Lorn.Application.Director.Interfaces
 #### 5.1.2 任务规划服务接口
 
 ```csharp
-namespace Lorn.Application.Director.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Director.Interfaces
 {
     /// <summary>
     /// 任务规划服务接口
@@ -721,7 +721,7 @@ namespace Lorn.Application.Director.Interfaces
 #### 5.1.3 Agent编排服务接口
 
 ```csharp
-namespace Lorn.Application.Director.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Director.Interfaces
 {
     /// <summary>
     /// Agent编排服务接口
@@ -766,7 +766,7 @@ namespace Lorn.Application.Director.Interfaces
 #### 5.2.1 执行监控服务接口
 
 ```csharp
-namespace Lorn.Application.Director.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Director.Interfaces
 {
     /// <summary>
     /// 执行监控服务接口
@@ -809,7 +809,7 @@ namespace Lorn.Application.Director.Interfaces
 #### 5.2.2 上下文管理服务接口
 
 ```csharp
-namespace Lorn.Application.Director.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Director.Interfaces
 {
     /// <summary>
     /// 上下文管理服务接口
@@ -1099,7 +1099,7 @@ flowchart TD
 
 ### 10.1 项目结构
 
-**应用层项目 (Lorn.Application.Director)**:
+**应用层项目 (Lorn.OpenAgenticAI.Application.Director)**:
 
 - 位置: `src/2.Application/Lorn.Application.Director/`
 - 类型: Class Library (.NET 9)
@@ -1109,7 +1109,7 @@ flowchart TD
 **项目目录结构**:
 
 ```text
-Lorn.Application.Director/
+Lorn.OpenAgenticAI.Application.Director/
 ├── Interfaces/                 # 服务接口定义
 │   ├── IDirectorService.cs
 │   ├── ITaskPlanningService.cs
@@ -1219,7 +1219,7 @@ Lorn.Application.Director/
 
 **依赖注入配置**:
 
-- 位置: `src/2.Application/Lorn.Application.Director/Extensions/ServiceCollectionExtensions.cs`
+- 位置: `src/2.Application/Lorn.OpenAgenticAI.Application.Director/Extensions/ServiceCollectionExtensions.cs`
 - 注册Semantic Kernel服务和Director核心组件
 - 配置缓存和健康检查
 - 设置性能监控和诊断

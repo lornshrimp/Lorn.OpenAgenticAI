@@ -10,6 +10,7 @@
 .fake
 .sarif/
 .devcontainer/
+.kiro/
 *.swp
 *.swo
 *~

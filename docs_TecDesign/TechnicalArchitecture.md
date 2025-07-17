@@ -352,52 +352,52 @@ Lorn.OpenAgenticAI.sln
 │   │   └── Lorn.OpenAgenticAI.Web/      # Web管理界面
 │   │
 │   ├── 2.Application/                   # 应用服务层
-│   │   ├── Lorn.Application.Director/   # Director调度引擎
-│   │   ├── Lorn.Application.Workflow/   # 工作流管理服务
-│   │   └── Lorn.Application.Agent/      # Agent管理服务
+│   │   ├── Lorn.OpenAgenticAI.Application.Director/   # Director调度引擎
+│   │   ├── Lorn.OpenAgenticAI.Application.Workflow/   # 工作流管理服务
+│   │   └── Lorn.OpenAgenticAI.Application.Agent/      # Agent管理服务
 │   │
 │   ├── 3.Domain/                        # 领域服务层
-│   │   ├── Lorn.Domain.Core/            # 核心领域模型
-│   │   ├── Lorn.Domain.MCP/             # MCP协议实现
-│   │   ├── Lorn.Domain.LLM/             # LLM适配器
-│   │   └── Lorn.Domain.Workflow/        # 工作流引擎扩展
+│   │   ├── Lorn.OpenAgenticAI.Domain.Core/            # 核心领域模型
+│   │   ├── Lorn.OpenAgenticAI.Domain.MCP/             # MCP协议实现
+│   │   ├── Lorn.OpenAgenticAI.Domain.LLM/             # LLM适配器
+│   │   └── Lorn.OpenAgenticAI.Domain.Workflow/        # 工作流引擎扩展
 │   │
 │   ├── 4.Infrastructure/                # 基础设施层
-│   │   ├── Lorn.Infrastructure.Data/    # 数据访问层
-│   │   ├── Lorn.Infrastructure.IPC/     # 进程间通信
-│   │   ├── Lorn.Infrastructure.Config/  # 配置管理
-│   │   └── Lorn.Infrastructure.Log/     # 日志系统
+│   │   ├── Lorn.OpenAgenticAI.Infrastructure.Data/    # 数据访问层
+│   │   ├── Lorn.OpenAgenticAI.Infrastructure.IPC/     # 进程间通信
+│   │   ├── Lorn.OpenAgenticAI.Infrastructure.Config/  # 配置管理
+│   │   └── Lorn.OpenAgenticAI.Infrastructure.Log/     # 日志系统
 │   │
 │   ├── 5.Agents/                        # Agent生态系统
-│   │   ├── Lorn.Agents.Core/            # Agent基础框架
-│   │   ├── Lorn.Agents.Office/          # Office Agent套件
-│   │   ├── Lorn.Agents.Browser/         # 浏览器Agent
-│   │   ├── Lorn.Agents.Email/           # 邮件Agent
-│   │   └── Lorn.Agents.SDK/             # Agent开发SDK
+│   │   ├── Lorn.OpenAgenticAI.Agents.Core/            # Agent基础框架
+│   │   ├── Lorn.OpenAgenticAI.Agents.Office/          # Office Agent套件
+│   │   ├── Lorn.OpenAgenticAI.Agents.Browser/         # 浏览器Agent
+│   │   ├── Lorn.OpenAgenticAI.Agents.Email/           # 邮件Agent
+│   │   └── Lorn.OpenAgenticAI.Agents.SDK/             # Agent开发SDK
 │   │
 │   └── 6.Shared/                        # 共享组件
-│       ├── Lorn.Shared.Contracts/       # 接口定义
-│       ├── Lorn.Shared.Models/          # 共享模型
-│       ├── Lorn.Shared.Utils/           # 工具类库
-│       └── Lorn.Shared.Constants/       # 常量定义
+│       ├── Lorn.OpenAgenticAI.Shared.Contracts/       # 接口定义
+│       ├── Lorn.OpenAgenticAI.Shared.Models/          # 共享模型
+│       ├── Lorn.OpenAgenticAI.Shared.Utils/           # 工具类库
+│       └── Lorn.OpenAgenticAI.Shared.Constants/       # 常量定义
 │
 ├── tests/                               # 测试项目
 │   ├── unit/                           # 单元测试
-│   │   ├── Lorn.Tests.Director/
-│   │   ├── Lorn.Tests.MCP/
-│   │   └── Lorn.Tests.Agents/
+│   │   ├── Lorn.OpenAgenticAI.Tests.Director/
+│   │   ├── Lorn.OpenAgenticAI.Tests.MCP/
+│   │   └── Lorn.OpenAgenticAI.Tests.Agents/
 │   │
 │   ├── integration/                     # 集成测试
-│   │   ├── Lorn.Tests.Integration.API/
-│   │   └── Lorn.Tests.Integration.E2E/
+│   │   ├── Lorn.OpenAgenticAI.Tests.Integration.API/
+│   │   └── Lorn.OpenAgenticAI.Tests.Integration.E2E/
 │   │
 │   └── performance/                     # 性能测试
-│       └── Lorn.Tests.Performance/
+│       └── Lorn.OpenAgenticAI.Tests.Performance/
 │
 ├── tools/                               # 开发工具
-│   ├── Lorn.Tools.CodeGen/             # 代码生成工具
-│   ├── Lorn.Tools.Migration/           # 数据迁移工具
-│   └── Lorn.Tools.AgentTemplate/       # Agent模板工具
+│   ├── Lorn.OpenAgenticAI.Tools.CodeGen/             # 代码生成工具
+│   ├── Lorn.OpenAgenticAI.Tools.Migration/           # 数据迁移工具
+│   └── Lorn.OpenAgenticAI.Tools.AgentTemplate/       # Agent模板工具
 │
 ├── docs/                               # 项目文档
 │   ├── api/                           # API文档
@@ -486,63 +486,63 @@ graph TB
 
 #### 5.3.2 应用层项目
 
-**Lorn.Application.Director**
+**Lorn.OpenAgenticAI.Application.Director**
 - 项目类型: Class Library
 - 主要功能: 任务调度、Agent编排、执行监控
 - 关键依赖: Microsoft.SemanticKernel, Lorn.Domain.MCP
 
-**Lorn.Application.Workflow**
+**Lorn.OpenAgenticAI.Application.Workflow**
 - 项目类型: Class Library
 - 主要功能: 工作流管理、模板管理、执行引擎
 - 关键依赖: Elsa.Workflows, Lorn.Domain.Workflow
 
-**Lorn.Application.Agent**
+**Lorn.OpenAgenticAI.Application.Agent**
 - 项目类型: Class Library
 - 主要功能: Agent注册、生命周期管理、能力发现
 - 关键依赖: Lorn.Agents.Core, Lorn.Domain.MCP
 
 #### 5.3.3 领域层项目
 
-**Lorn.Domain.Core**
+**Lorn.OpenAgenticAI.Domain.Core**
 - 项目类型: Class Library
 - 主要功能: 核心领域模型、业务规则、领域服务
 - 关键依赖: Lorn.Shared.Contracts
 
-**Lorn.Domain.MCP**
+**Lorn.OpenAgenticAI.Domain.MCP**
 - 项目类型: Class Library
 - 主要功能: MCP协议实现、消息路由、连接管理
 - 关键依赖: Lorn.Infrastructure.IPC
 
-**Lorn.Domain.LLM**
+**Lorn.OpenAgenticAI.Domain.LLM**
 - 项目类型: Class Library
 - 主要功能: LLM适配器、多模型支持、Prompt管理
 - 关键依赖: Microsoft.SemanticKernel
 
 #### 5.3.4 基础设施层项目
 
-**Lorn.Infrastructure.Data**
+**Lorn.OpenAgenticAI.Infrastructure.Data**
 - 项目类型: Class Library
 - 主要功能: 数据访问、Repository实现、数据迁移
 - 关键依赖: Microsoft.EntityFrameworkCore.Sqlite, LiteDB
 
-**Lorn.Infrastructure.IPC**
+**Lorn.OpenAgenticAI.Infrastructure.IPC**
 - 项目类型: Class Library
 - 主要功能: 进程间通信、Named Pipes、gRPC实现
 - 关键依赖: Grpc.Net.Client, System.IO.Pipes
 
 #### 5.3.5 Agent生态系统项目
 
-**Lorn.Agents.Core**
+**Lorn.OpenAgenticAI.Agents.Core**
 - 项目类型: Class Library
 - 主要功能: Agent基础框架、生命周期管理、安全模型
 - 关键依赖: Lorn.Domain.MCP
 
-**Lorn.Agents.Office**
+**Lorn.OpenAgenticAI.Agents.Office**
 - 项目类型: Class Library
 - 主要功能: Word/Excel/PowerPoint Agent实现
 - 关键依赖: Microsoft.Office.Interop.Word/Excel/PowerPoint
 
-**Lorn.Agents.SDK**
+**Lorn.OpenAgenticAI.Agents.SDK**
 - 项目类型: NuGet Package
 - 主要功能: 第三方Agent开发SDK、模板、文档
 - 关键依赖: Lorn.Agents.Core

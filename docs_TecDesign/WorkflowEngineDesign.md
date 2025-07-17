@@ -78,7 +78,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "Lorn.Application.Workflow - 工作流管理服务"
+    subgraph "Lorn.OpenAgenticAI.Application.Workflow - 工作流管理服务"
         WMS[工作流管理服务]
         WTS[工作流模板服务]
         WES[工作流执行服务]
@@ -127,7 +127,7 @@ graph TB
 
 ### 2.2 核心组件设计
 
-#### 2.2.1 工作流管理服务 (Lorn.Application.Workflow)
+#### 2.2.1 工作流管理服务 (Lorn.OpenAgenticAI.Application.Workflow)
 
 **组件职责**:
 
@@ -168,9 +168,9 @@ classDiagram
     IWorkflowTemplateService --> TemplateModel
 ```
 
-**实现位置**: `src/2.Application/Lorn.Application.Workflow/`
+**实现位置**: `src/2.Application/Lorn.OpenAgenticAI.Application.Workflow/`
 
-#### 2.2.2 工作流引擎扩展 (Lorn.Domain.Workflow)
+#### 2.2.2 工作流引擎扩展 (Lorn.OpenAgenticAI.Domain.Workflow)
 
 **组件职责**:
 
@@ -216,7 +216,7 @@ classDiagram
     ElsaWorkflowWrapper --> WorkflowRuntimeProvider
 ```
 
-**实现位置**: `src/3.Domain/Lorn.Domain.Workflow/`
+**实现位置**: `src/3.Domain/Lorn.OpenAgenticAI.Domain.Workflow/`
 
 ### 2.3 自定义活动体系
 
@@ -440,7 +440,7 @@ classDiagram
 #### 4.1.1 工作流服务接口
 
 ```csharp
-namespace Lorn.Application.Workflow.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Workflow.Interfaces
 {
     /// <summary>
     /// 工作流管理服务接口
@@ -488,7 +488,7 @@ namespace Lorn.Application.Workflow.Interfaces
 #### 4.1.2 工作流执行接口
 
 ```csharp
-namespace Lorn.Application.Workflow.Interfaces
+namespace Lorn.OpenAgenticAI.Application.Workflow.Interfaces
 {
     /// <summary>
     /// 工作流执行服务接口
@@ -538,7 +538,7 @@ namespace Lorn.Application.Workflow.Interfaces
 #### 4.2.1 Agent调用活动接口
 
 ```csharp
-namespace Lorn.Domain.Workflow.Activities
+namespace Lorn.OpenAgenticAI.Domain.Workflow.Activities
 {
     /// <summary>
     /// Agent调用活动基类
@@ -697,13 +697,13 @@ graph TB
 
 **工作流定义持久化**:
 
-- 存储位置: `src/4.Infrastructure/Lorn.Infrastructure.Data/Repositories/WorkflowRepository`
+- 存储位置: `src/4.Infrastructure/Lorn.OpenAgenticAI.Infrastructure.Data/Repositories/WorkflowRepository`
 - 数据库表: `Workflows`, `WorkflowVersions`
 - 序列化格式: JSON (Elsa定义格式)
 
 **执行状态持久化**:
 
-- 存储位置: `src/4.Infrastructure/Lorn.Infrastructure.Data/Repositories/ExecutionRepository`
+- 存储位置: `src/4.Infrastructure/Lorn.OpenAgenticAI.Infrastructure.Data/Repositories/ExecutionRepository`
 - 数据库表: `WorkflowExecutions`, `WorkflowSteps`
 - 持久化时机: 每个活动执行前后
 
@@ -837,16 +837,16 @@ graph TB
 
 ### 10.1 项目结构
 
-**应用层项目 (Lorn.Application.Workflow)**:
+**应用层项目 (Lorn.OpenAgenticAI.Application.Workflow)**:
 
-- 位置: `src/2.Application/Lorn.Application.Workflow/`
+- 位置: `src/2.Application/Lorn.OpenAgenticAI.Application.Workflow/`
 - 类型: Class Library (.NET 9)
 - 依赖: Lorn.Domain.Workflow, Lorn.Shared.Contracts
 - 职责: 工作流管理业务逻辑实现
 
-**领域层项目 (Lorn.Domain.Workflow)**:
+**领域层项目 (Lorn.OpenAgenticAI.Domain.Workflow)**:
 
-- 位置: `src/3.Domain/Lorn.Domain.Workflow/`
+- 位置: `src/3.Domain/Lorn.OpenAgenticAI.Domain.Workflow/`
 - 类型: Class Library (.NET 9)
 - 依赖: Elsa.Workflows, Lorn.Domain.MCP
 - 职责: Elsa引擎集成和自定义活动实现
@@ -894,7 +894,7 @@ graph TB
 
 **依赖注入配置**:
 
-- 位置: `src/2.Application/Lorn.Application.Workflow/ServiceCollectionExtensions.cs`
+- 位置: `src/2.Application/Lorn.OpenAgenticAI.Application.Workflow/ServiceCollectionExtensions.cs`
 - 注册Elsa服务和自定义活动
 - 配置持久化提供器
 - 设置执行选项

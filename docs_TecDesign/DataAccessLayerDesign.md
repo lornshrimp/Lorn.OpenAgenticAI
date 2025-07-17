@@ -58,11 +58,11 @@ graph TB
 
 本设计文档主要指导以下项目中的实现：
 
-- **Lorn.Domain.Contracts**: 数据访问接口定义
-- **Lorn.Infrastructure.Data**: 数据访问层实现
-- **Lorn.Infrastructure.Data.Repositories**: 仓储模式实现
-- **Lorn.Infrastructure.Data.Specifications**: 查询规约实现
-- **Lorn.Shared.Contracts**: 数据传输对象和查询模型
+- **Lorn.OpenAgenticAI.Domain.Contracts**: 数据访问接口定义
+- **Lorn.OpenAgenticAI.Infrastructure.Data**: 数据访问层实现
+- **Lorn.OpenAgenticAI.Infrastructure.Data.Repositories**: 仓储模式实现
+- **Lorn.OpenAgenticAI.Infrastructure.Data.Specifications**: 查询规约实现
+- **Lorn.OpenAgenticAI.Shared.Contracts**: 数据传输对象和查询模型
 
 ## 数据访问层架构设计
 
@@ -120,7 +120,7 @@ graph TB
 
 ### 1. 基础仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/IRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/IRepository.cs`
 
 ```mermaid
 classDiagram
@@ -169,7 +169,7 @@ classDiagram
 
 ### 2. 工作单元接口
 
-**项目位置**: `Lorn.Domain.Contracts/UnitOfWork/IUnitOfWork.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/UnitOfWork/IUnitOfWork.cs`
 
 ```mermaid
 classDiagram
@@ -204,7 +204,7 @@ classDiagram
 
 ### 3. 查询规约接口
 
-**项目位置**: `Lorn.Domain.Contracts/Specifications/ISpecification.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Specifications/ISpecification.cs`
 
 ```mermaid
 classDiagram
@@ -254,7 +254,7 @@ classDiagram
 
 ### 1. 用户管理仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/IUserProfileRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/IUserProfileRepository.cs`
 
 ```mermaid
 classDiagram
@@ -314,7 +314,7 @@ classDiagram
 
 ### 2. 任务执行仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/ITaskExecutionHistoryRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/ITaskExecutionHistoryRepository.cs`
 
 ```mermaid
 classDiagram
@@ -374,7 +374,7 @@ classDiagram
 
 ### 3. Agent能力仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/IAgentCapabilityRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/IAgentCapabilityRepository.cs`
 
 ```mermaid
 classDiagram
@@ -424,7 +424,7 @@ classDiagram
 
 ### 4. LLM管理仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/IModelProviderRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/IModelProviderRepository.cs`
 
 ```mermaid
 classDiagram
@@ -536,7 +536,7 @@ classDiagram
 
 ### 5. LLM用户配置仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/IProviderUserConfigurationRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.OpenAgenticAI.Domain.Contracts/Repositories/IProviderUserConfigurationRepository.cs`
 
 ```mermaid
 classDiagram
@@ -620,7 +620,7 @@ classDiagram
 
 ### 6. MCP配置仓储接口
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/IMCPConfigurationRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/IMCPConfigurationRepository.cs`
 
 ```mermaid
 classDiagram
@@ -719,7 +719,7 @@ classDiagram
 
 ### 复杂查询服务接口
 
-**项目位置**: `Lorn.Domain.Contracts/Services/IQueryService.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Services/IQueryService.cs`
 
 ```mermaid
 classDiagram
@@ -770,7 +770,7 @@ classDiagram
 
 ### 1. 基础仓储实现
 
-**项目位置**: `Lorn.Infrastructure.Data/Repositories/RepositoryBase.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Repositories/RepositoryBase.cs`
 
 ```mermaid
 classDiagram
@@ -814,7 +814,7 @@ classDiagram
 
 ### 2. 专门仓储实现
 
-**项目位置**: `Lorn.Infrastructure.Data/Repositories/TaskExecutionHistoryRepository.cs`
+**项目位置**: `Lorn.OpenAgenticAI.OpenAgenticAI.Infrastructure.Data/Repositories/TaskExecutionHistoryRepository.cs`
 
 ```mermaid
 classDiagram
@@ -846,7 +846,7 @@ classDiagram
 
 ### 3. LLM管理仓储实现
 
-**项目位置**: `Lorn.Infrastructure.Data/Repositories/LLM/`
+**项目位置**: `Lorn.OpenAgenticAI.OpenAgenticAI.Infrastructure.Data/Repositories/LLM/`
 
 ```mermaid
 classDiagram
@@ -901,7 +901,7 @@ classDiagram
 
 ### 4. MCP配置仓储实现
 
-**项目位置**: `Lorn.Infrastructure.Data/Repositories/MCP/`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Repositories/MCP/`
 
 ```mermaid
 classDiagram

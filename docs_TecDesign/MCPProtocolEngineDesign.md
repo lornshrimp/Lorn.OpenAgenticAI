@@ -134,7 +134,7 @@ graph TB
 
 **核心接口设计**:
 
-在`Lorn.Domain.MCP`项目中实现：
+在`Lorn.OpenAgenticAI.Domain.MCP`项目中实现：
 
 ```csharp
 public interface IMCPAdapter
@@ -237,8 +237,8 @@ public interface IStreamableHTTPAdapter : IProtocolAdapter
 
 **简化的依赖关系**:
 
-- `Lorn.Domain.MCP`主要依赖`Microsoft.SemanticKernel.Agents`
-- `Lorn.Infrastructure.IPC`保留对底层传输协议的完整依赖
+- `Lorn.OpenAgenticAI.Domain.MCP`主要依赖`Microsoft.SemanticKernel.Agents`
+- `Lorn.OpenAgenticAI.Infrastructure.IPC`保留对底层传输协议的完整依赖
 - 移除复杂的路由、负载均衡等组件依赖
 - 专注于配置管理和协议适配的核心功能
 
@@ -297,7 +297,7 @@ flowchart TD
 
 ### 2.4 简化的Visual Studio项目结构
 
-#### 2.4.1 Lorn.Domain.MCP项目 (简化版)
+#### 2.4.1 Lorn.OpenAgenticAI.Domain.MCP项目 (简化版)
 
 **项目类型**: Class Library (.NET 9)
 **主要功能**: MCP协议适配和配置管理
@@ -305,7 +305,7 @@ flowchart TD
 **简化的目录结构**:
 
 ```text
-Lorn.Domain.MCP/
+Lorn.OpenAgenticAI.Domain.MCP/
 ├── Adapters/                       # 适配器接口
 │   ├── IMCPAdapter.cs             # MCP适配器接口
 │   ├── ISemanticKernelMCPAdapter.cs # SK集成适配器
@@ -326,7 +326,7 @@ Lorn.Domain.MCP/
     └── ProtocolException.cs       # 协议异常
 ```
 
-#### 2.4.2 Lorn.Infrastructure.IPC项目 (保留完整实现)
+#### 2.4.2 Lorn.OpenAgenticAI.Infrastructure.IPC项目 (保留完整实现)
 
 **项目类型**: Class Library (.NET 9)  
 **主要功能**: MCP协议传输层实现
@@ -334,7 +334,7 @@ Lorn.Domain.MCP/
 **完整保留的目录结构**:
 
 ```text
-Lorn.Infrastructure.IPC/
+Lorn.OpenAgenticAI.Infrastructure.IPC/
 ├── Contracts/                      # 传输层接口
 │   ├── IProtocolAdapter.cs        # 协议适配器基础接口
 │   ├── IStandardIOAdapter.cs      # 标准I/O接口
@@ -523,12 +523,12 @@ flowchart TD
 
 **在Visual Studio解决方案中的具体实现位置**:
 
-1. **Lorn.Domain.MCP/Adapters/IMCPAdapter.cs**: SemanticKernel集成的主要接口
-2. **Lorn.Domain.MCP/Configuration/IMCPConfigurationManager.cs**: 配置管理核心接口  
-3. **Lorn.Infrastructure.IPC/Contracts/IProtocolAdapter.cs**: 协议适配器基础接口
-4. **Lorn.Infrastructure.IPC/StandardIO/StandardIOAdapter.cs**: Standard I/O协议实现
-5. **Lorn.Infrastructure.IPC/ServerSentEvents/ServerSentEventsAdapter.cs**: SSE协议实现
-6. **Lorn.Infrastructure.IPC/StreamableHTTP/StreamableHTTPAdapter.cs**: HTTP流协议实现
+1. **Lorn.OpenAgenticAI.Domain.MCP/Adapters/IMCPAdapter.cs**: SemanticKernel集成的主要接口
+2. **Lorn.OpenAgenticAI.Domain.MCP/Configuration/IMCPConfigurationManager.cs**: 配置管理核心接口  
+3. **Lorn.OpenAgenticAI.Infrastructure.IPC/Contracts/IProtocolAdapter.cs**: 协议适配器基础接口
+4. **Lorn.OpenAgenticAI.Infrastructure.IPC/StandardIO/StandardIOAdapter.cs**: Standard I/O协议实现
+5. **Lorn.OpenAgenticAI.Infrastructure.IPC/ServerSentEvents/ServerSentEventsAdapter.cs**: SSE协议实现
+6. **Lorn.OpenAgenticAI.Infrastructure.IPC/StreamableHTTP/StreamableHTTPAdapter.cs**: HTTP流协议实现
 
 ---
 

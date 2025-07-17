@@ -51,9 +51,9 @@ graph TB
 
 本设计文档主要指导以下项目中的实现：
 
-- **Lorn.Domain.Models**: 领域实体类定义 - 核心业务对象
-- **Lorn.Infrastructure.Data**: 数据访问基础设施 - EF Core上下文和配置
-- **Lorn.Shared.Contracts**: 数据传输对象 - DTO和接口定义
+- **Lorn.OpenAgenticAI.Domain.Models**: 领域实体类定义 - 核心业务对象
+- **Lorn.OpenAgenticAI.Infrastructure.Data**: 数据访问基础设施 - EF Core上下文和配置
+- **Lorn.OpenAgenticAI.Shared.Contracts**: 数据传输对象 - DTO和接口定义
 
 ## 数据存储技术选型
 
@@ -96,7 +96,7 @@ graph LR
 
 #### 1.1 用户档案实体
 
-**项目位置**: `Lorn.Domain.Models/UserManagement/UserProfile.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/UserManagement/UserProfile.cs`
 
 ```mermaid
 classDiagram
@@ -161,7 +161,7 @@ classDiagram
 
 #### 1.2 EF Core配置类
 
-**项目位置**: `Lorn.Infrastructure.Data/Configurations/UserProfileConfiguration.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Configurations/UserProfileConfiguration.cs`
 
 ```mermaid
 classDiagram
@@ -183,7 +183,7 @@ classDiagram
 
 #### 2.1 任务执行历史实体
 
-**项目位置**: `Lorn.Domain.Models/Execution/TaskExecutionHistory.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/Execution/TaskExecutionHistory.cs`
 
 ```mermaid
 classDiagram
@@ -277,7 +277,7 @@ classDiagram
 
 #### 2.2 工作流模板实体
 
-**项目位置**: `Lorn.Domain.Models/Workflow/WorkflowTemplate.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/Workflow/WorkflowTemplate.cs`
 
 ```mermaid
 classDiagram
@@ -369,7 +369,7 @@ classDiagram
 
 #### 3.1 模型能力注册表
 
-**项目位置**: `Lorn.Domain.Models/Capabilities/ModelCapabilityRegistry.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/Capabilities/ModelCapabilityRegistry.cs`
 
 ```mermaid
 classDiagram
@@ -440,7 +440,7 @@ classDiagram
 
 #### 3.2 Agent能力注册表
 
-**项目位置**: `Lorn.Domain.Models/Capabilities/AgentCapabilityRegistry.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/Capabilities/AgentCapabilityRegistry.cs`
 
 ```mermaid
 classDiagram
@@ -539,7 +539,7 @@ classDiagram
 
 #### 4.1 模型服务提供商实体
 
-**项目位置**: `Lorn.Domain.Models/LLM/ModelProvider.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/LLM/ModelProvider.cs`
 
 ```mermaid
 classDiagram
@@ -651,7 +651,7 @@ classDiagram
 
 #### 4.2 模型实体
 
-**项目位置**: `Lorn.Domain.Models/LLM/Model.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/LLM/Model.cs`
 
 ```mermaid
 classDiagram
@@ -726,7 +726,7 @@ classDiagram
 
 #### 4.3 用户配置实体
 
-**项目位置**: `Lorn.Domain.Models/LLM/ProviderUserConfiguration.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/LLM/ProviderUserConfiguration.cs`
 
 ```mermaid
 classDiagram
@@ -847,7 +847,7 @@ classDiagram
 
 #### 5.1 MCP配置实体
 
-**项目位置**: `Lorn.Domain.Models/MCP/MCPConfiguration.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/MCP/MCPConfiguration.cs`
 
 ```mermaid
 classDiagram
@@ -941,7 +941,7 @@ classDiagram
 
 #### 5.2 协议适配器配置实体
 
-**项目位置**: `Lorn.Domain.Models/MCP/ProtocolAdapterConfiguration.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/MCP/ProtocolAdapterConfiguration.cs`
 
 ```mermaid
 classDiagram
@@ -1056,7 +1056,7 @@ classDiagram
 
 #### 5.3 配置模板实体
 
-**项目位置**: `Lorn.Domain.Models/MCP/ConfigurationTemplate.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/MCP/ConfigurationTemplate.cs`
 
 ```mermaid
 classDiagram
@@ -1117,7 +1117,7 @@ classDiagram
 
 #### EF Core配置类设计
 
-**项目位置**: `Lorn.Infrastructure.Data/Configurations/`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Configurations/`
 
 ```mermaid
 classDiagram
@@ -1149,7 +1149,7 @@ classDiagram
 
 ### EF Core DbContext设计
 
-**项目位置**: `Lorn.Infrastructure.Data/OpenAgenticAIDbContext.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/OpenAgenticAIDbContext.cs`
 
 ```mermaid
 classDiagram
@@ -1228,7 +1228,7 @@ graph TB
 
 ### DTO设计模式
 
-**项目位置**: `Lorn.Shared.Contracts/DTOs/`
+**项目位置**: `Lorn.OpenAgenticAI.Shared.Contracts/DTOs/`
 
 ```mermaid
 classDiagram
@@ -1288,7 +1288,7 @@ classDiagram
 
 ### AutoMapper配置
 
-**项目位置**: `Lorn.Infrastructure.Data/Mapping/MappingProfile.cs`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Mapping/MappingProfile.cs`
 
 ```mermaid
 classDiagram
@@ -1374,7 +1374,7 @@ classDiagram
 
 ### 枚举类设计
 
-**项目位置**: `Lorn.Domain.Models/Enumerations/`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/Enumerations/`
 
 ```mermaid
 classDiagram
@@ -1438,7 +1438,7 @@ classDiagram
 
 ### 验证器设计
 
-**项目位置**: `Lorn.Domain.Models/Validators/`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Models/Validators/`
 
 ```mermaid
 classDiagram
@@ -1490,7 +1490,7 @@ classDiagram
 
 ### FluentValidation集成
 
-**项目位置**: `Lorn.Infrastructure.Data/Validation/`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Validation/`
 
 ```mermaid
 classDiagram
@@ -1530,7 +1530,7 @@ classDiagram
 
 ### 仓储接口设计
 
-**项目位置**: `Lorn.Domain.Contracts/Repositories/`
+**项目位置**: `Lorn.OpenAgenticAI.Domain.Contracts/Repositories/`
 
 ```mermaid
 classDiagram
@@ -1651,7 +1651,7 @@ classDiagram
 
 ### 仓储实现设计
 
-**项目位置**: `Lorn.Infrastructure.Data/Repositories/`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Repositories/`
 
 ```mermaid
 classDiagram
@@ -1831,7 +1831,7 @@ graph TD
 
 ### 迁移实现
 
-**项目位置**: `Lorn.Infrastructure.Data/Migrations/`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/Migrations/`
 
 ```mermaid
 classDiagram
@@ -1911,7 +1911,7 @@ graph TB
 
 ### 查询优化
 
-**项目位置**: `Lorn.Infrastructure.Data/QueryOptimization/`
+**项目位置**: `Lorn.OpenAgenticAI.Infrastructure.Data/QueryOptimization/`
 
 ```mermaid
 classDiagram
@@ -2004,17 +2004,17 @@ classDiagram
    - 安装必要的NuGet包
 
 2. **实现领域模型层**
-   - 在`Lorn.Domain.Models`项目中实现实体类
+   - 在`Lorn.OpenAgenticAI.Domain.Models`项目中实现实体类
    - 实现值对象和枚举类
    - 添加领域验证逻辑
 
 3. **配置数据访问层**
-   - 在`Lorn.Infrastructure.Data`项目中配置EF Core
+   - 在`Lorn.OpenAgenticAI.Infrastructure.Data`项目中配置EF Core
    - 创建数据库上下文和配置类
    - 实现仓储模式
 
 4. **创建数据传输对象**
-   - 在`Lorn.Shared.Contracts`项目中定义DTO
+   - 在`Lorn.OpenAgenticAI.Shared.Contracts`项目中定义DTO
    - 配置AutoMapper映射规则
    - 实现转换器服务
 

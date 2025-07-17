@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <!-- 启用更多的nullable相关警告 -->
+    <WarningsNotAsErrors>NU1701;CA1416</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 用于数据加密 -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+    
+    <!-- 用于JSON序列化 -->
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    
+    <!-- 用于数据验证 -->
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    
+    <!-- 用于集合操作 -->
+    <PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
+    
+    <!-- 用于高级字符串操作 -->
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
