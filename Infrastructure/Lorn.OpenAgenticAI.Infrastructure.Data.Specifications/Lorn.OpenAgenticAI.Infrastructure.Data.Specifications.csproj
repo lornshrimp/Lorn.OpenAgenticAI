@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 引用领域模型项目 -->
+    <ProjectReference Include="..\..\Domain\Lorn.OpenAgenticAI.Domain.Models\Lorn.OpenAgenticAI.Domain.Models.csproj" />
+  </ItemGroup>
+
+</Project>

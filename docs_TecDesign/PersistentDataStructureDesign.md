@@ -52,8 +52,16 @@ graph TB
 本设计文档主要指导以下项目中的实现：
 
 - **Lorn.OpenAgenticAI.Domain.Models**: 领域实体类定义 - 核心业务对象
-- **Lorn.OpenAgenticAI.Infrastructure.Data**: 数据访问基础设施 - EF Core上下文和配置
+- **Lorn.OpenAgenticAI.Infrastructure.Data**: 数据访问基础设施 - EF Core上下文和配置（数据库无关）
+- **Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite**: SQLite数据库具体实现 - SQLite特定配置和扩展
 - **Lorn.OpenAgenticAI.Shared.Contracts**: 数据传输对象 - DTO和接口定义
+
+## 项目依赖关系与Entity Framework Core引用
+
+> **注意**: 关于数据访问层的详细设计，包括项目依赖关系、EF Core配置、仓储模式等内容，请参考：
+> - [数据访问层综合技术设计 - DataAccessLayerDesign.md](./DataAccessLayerDesign.md)
+
+本文档专注于**数据结构设计**，即业务实体、值对象、枚举等领域模型的物理设计。数据访问相关的技术实现请查阅上述专门文档。
 
 ## 数据存储技术选型
 
