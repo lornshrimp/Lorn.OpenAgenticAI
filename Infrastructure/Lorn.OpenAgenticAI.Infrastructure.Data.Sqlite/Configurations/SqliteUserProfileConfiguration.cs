@@ -31,13 +31,8 @@ public class SqliteUserProfileConfiguration : IEntityTypeConfiguration<UserProfi
             .HasMaxLength(255)
             .IsRequired();
 
-        // JSON列配置（SQLite 3.38+支持）
-        builder.Property(x => x.Metadata)
-            .HasColumnType("TEXT")
-            .HasConversion(
-                dict => JsonSerializer.Serialize(dict, (JsonSerializerOptions)null!),
-                json => JsonSerializer.Deserialize<Dictionary<string, object>>(json, (JsonSerializerOptions)null!) ?? new Dictionary<string, object>()
-            );
+        // 注意：Metadata 属性已经移除，现在通过 UserMetadataEntry 实体单独存储
+        // 如果需要JSON存储，应该在 UserMetadataEntry 的配置中处理
 
         // 值对象配置 - SecuritySettings
         builder.OwnsOne(x => x.SecuritySettings, securityBuilder =>

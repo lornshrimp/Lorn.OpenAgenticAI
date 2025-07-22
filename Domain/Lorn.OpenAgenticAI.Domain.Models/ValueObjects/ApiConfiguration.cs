@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using Lorn.OpenAgenticAI.Domain.Models.Common;
@@ -14,11 +16,30 @@ public class ApiConfiguration : ValueObject
     public string BaseUrl { get; private set; } = string.Empty;
     public EncryptedString ApiKey { get; private set; } = null!;
     public Enumerations.AuthenticationMethod AuthMethod { get; private set; } = null!;
-    public Dictionary<string, string> CustomHeaders { get; private set; } = new();
+
+    /// <summary>
+    /// 自定义头部条目（导航属性）
+    /// </summary>
+    [NotMapped]
+    public virtual ICollection<ApiHeaderEntry> CustomHeaderEntries { get; set; } = new List<ApiHeaderEntry>();
+
     public int TimeoutSeconds { get; private set; }
     public RetryPolicy RetryPolicy { get; private set; } = null!;
     public RateLimit RateLimit { get; private set; } = null!;
     public ProxySettings ProxySettings { get; private set; } = null!;
+
+    // EF Core 需要的无参数构造函数
+    private ApiConfiguration()
+    {
+        BaseUrl = string.Empty;
+        ApiKey = EncryptedString.FromPlainText(string.Empty);
+        AuthMethod = Enumerations.AuthenticationMethod.None;
+        CustomHeaderEntries = new List<ApiHeaderEntry>();
+        TimeoutSeconds = 30;
+        RetryPolicy = new RetryPolicy(3, 1000, 2.0);
+        RateLimit = new RateLimit(60, 10, 100, TimeSpan.FromMinutes(1));
+        ProxySettings = new ProxySettings();
+    }
 
     public ApiConfiguration(
         string baseUrl,
@@ -33,11 +54,30 @@ public class ApiConfiguration : ValueObject
         BaseUrl = !string.IsNullOrWhiteSpace(baseUrl) ? baseUrl : throw new ArgumentException("BaseUrl cannot be empty", nameof(baseUrl));
         ApiKey = apiKey ?? EncryptedString.FromPlainText(string.Empty);
         AuthMethod = authMethod ?? throw new ArgumentNullException(nameof(authMethod));
-        CustomHeaders = customHeaders ?? new Dictionary<string, string>();
+        CustomHeaderEntries = new List<ApiHeaderEntry>();
         TimeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : 30;
         RetryPolicy = retryPolicy ?? new RetryPolicy(3, 1000, 2.0);
         RateLimit = rateLimit ?? new RateLimit(60, 10, 100, TimeSpan.FromMinutes(1));
         ProxySettings = proxySettings ?? new ProxySettings();
+
+        // 如果提供了自定义头部字典，转换为实体对象
+        if (customHeaders != null)
+        {
+            foreach (var kvp in customHeaders)
+            {
+                CustomHeaderEntries.Add(new ApiHeaderEntry(kvp.Key, kvp.Value));
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取自定义头部字典（向后兼容）
+    /// </summary>
+    public Dictionary<string, string> GetCustomHeaders()
+    {
+        return CustomHeaderEntries
+            .Where(e => e.IsEnabled)
+            .ToDictionary(e => e.HeaderName, e => e.HeaderValue);
     }
 
     /// <summary>
@@ -75,7 +115,7 @@ public class ApiConfiguration : ValueObject
     public HttpClient BuildHttpClient()
     {
         var handler = new HttpClientHandler();
-        
+
         // 配置代理
         if (ProxySettings.IsEnabled)
         {
@@ -100,9 +140,9 @@ public class ApiConfiguration : ValueObject
         }
 
         // 添加自定义头
-        foreach (var header in CustomHeaders)
+        foreach (var headerEntry in CustomHeaderEntries.Where(e => e.IsEnabled))
         {
-            client.DefaultRequestHeaders.Add(header.Key, header.Value);
+            client.DefaultRequestHeaders.Add(headerEntry.HeaderName, headerEntry.HeaderValue);
         }
 
         return client;
@@ -122,11 +162,11 @@ public class ApiConfiguration : ValueObject
         yield return ApiKey.EncryptedValue;
         yield return AuthMethod.Id;
         yield return TimeoutSeconds;
-        
-        foreach (var header in CustomHeaders)
+
+        foreach (var headerEntry in CustomHeaderEntries.Where(e => e.IsEnabled).OrderBy(e => e.HeaderName))
         {
-            yield return header.Key;
-            yield return header.Value;
+            yield return headerEntry.HeaderName;
+            yield return headerEntry.HeaderValue;
         }
     }
 }
@@ -140,6 +180,22 @@ public class RetryPolicy : ValueObject
     public int RetryDelayMs { get; private set; }
     public double BackoffMultiplier { get; private set; }
     public List<HttpStatusCode> RetryableStatusCodes { get; private set; } = new();
+
+    // EF Core 需要的无参数构造函数
+    private RetryPolicy()
+    {
+        MaxRetries = 3;
+        RetryDelayMs = 1000;
+        BackoffMultiplier = 2.0;
+        RetryableStatusCodes = new List<HttpStatusCode>
+        {
+            HttpStatusCode.RequestTimeout,
+            HttpStatusCode.InternalServerError,
+            HttpStatusCode.BadGateway,
+            HttpStatusCode.ServiceUnavailable,
+            HttpStatusCode.GatewayTimeout
+        };
+    }
 
     public RetryPolicy(
         int maxRetries = 3,
@@ -196,7 +252,7 @@ public class RetryPolicy : ValueObject
         yield return MaxRetries;
         yield return RetryDelayMs;
         yield return BackoffMultiplier;
-        
+
         foreach (var statusCode in RetryableStatusCodes)
         {
             yield return statusCode;
@@ -213,6 +269,15 @@ public class RateLimit : ValueObject
     public int ConcurrentRequests { get; private set; }
     public int BurstLimit { get; private set; }
     public TimeSpan WindowSize { get; private set; }
+
+    // EF Core 需要的无参数构造函数
+    private RateLimit()
+    {
+        RequestsPerMinute = 60;
+        ConcurrentRequests = 10;
+        BurstLimit = 100;
+        WindowSize = TimeSpan.FromMinutes(1);
+    }
 
     public RateLimit(
         int requestsPerMinute = 60,
@@ -252,6 +317,15 @@ public class ProxySettings : ValueObject
     public EncryptedString ProxyAuth { get; private set; } = null!;
     public bool IsEnabled { get; private set; }
     public List<string> BypassList { get; private set; } = new();
+
+    // EF Core 需要的无参数构造函数
+    private ProxySettings()
+    {
+        ProxyUrl = string.Empty;
+        ProxyAuth = EncryptedString.FromPlainText(string.Empty);
+        IsEnabled = false;
+        BypassList = new List<string>();
+    }
 
     public ProxySettings(
         string? proxyUrl = null,
@@ -295,7 +369,7 @@ public class ProxySettings : ValueObject
         yield return ProxyUrl;
         yield return ProxyAuth.EncryptedValue;
         yield return IsEnabled;
-        
+
         foreach (var bypass in BypassList)
         {
             yield return bypass;

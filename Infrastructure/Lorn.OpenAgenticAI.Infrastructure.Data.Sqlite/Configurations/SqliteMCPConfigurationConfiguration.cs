@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Lorn.OpenAgenticAI.Domain.Models.MCP;
+using Lorn.OpenAgenticAI.Domain.Models.Common;
+using Lorn.OpenAgenticAI.Domain.Models.Enumerations;
 using System.Text.Json;
 
 namespace Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite.Configurations;
@@ -52,9 +54,12 @@ public class SqliteMCPConfigurationConfiguration : IEntityTypeConfiguration<MCPC
         builder.Property(e => e.IsEnabled)
             .HasConversion<int>();
 
-        // 枚举字段配置
+        // 枚举字段配置 - MCPProtocolType转换为整数存储
         builder.Property(e => e.Type)
-            .HasConversion<string>();
+            .HasConversion(
+                protocolType => protocolType.Id,
+                id => Enumeration.FromValue<MCPProtocolType>(id)
+            );
 
         // 复杂对象配置（JSON序列化）
         builder.Property(e => e.Arguments)

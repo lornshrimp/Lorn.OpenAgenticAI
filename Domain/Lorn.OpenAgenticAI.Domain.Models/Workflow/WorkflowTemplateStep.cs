@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Lorn.OpenAgenticAI.Domain.Models.Common;
 using Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.Workflow;
@@ -25,7 +26,7 @@ public class WorkflowTemplateStep
     public virtual WorkflowTemplate Template { get; set; } = null!;
 
     // 私有构造函数用于EF Core
-    private WorkflowTemplateStep() 
+    private WorkflowTemplateStep()
     {
         StepId = Guid.NewGuid();
     }
@@ -174,7 +175,7 @@ public class WorkflowTemplateStep
     /// </summary>
     public void SetParameter(string key, object value)
     {
-        Parameters.SetParameter(key, value);
+        Parameters.SetInputParameter(key, value);
     }
 
     /// <summary>

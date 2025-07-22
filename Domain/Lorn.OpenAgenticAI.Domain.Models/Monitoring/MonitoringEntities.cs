@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lorn.OpenAgenticAI.Domain.Models.Enumerations;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.Monitoring;
@@ -17,8 +18,9 @@ public class PerformanceMetricsRecord
     public string MetricName { get; private set; } = string.Empty;
     public double MetricValue { get; private set; }
     public string MetricUnit { get; private set; } = string.Empty;
-    public Dictionary<string, string> Tags { get; private set; } = new();
-    public Dictionary<string, object> Context { get; private set; } = new();
+    // 导航属性替换Dictionary
+    public virtual ICollection<MetricTagEntry> TagEntries { get; private set; } = new List<MetricTagEntry>();
+    public virtual ICollection<MetricContextEntry> ContextEntries { get; private set; } = new List<MetricContextEntry>();
     public string? AggregationPeriod { get; private set; }
 
     // 导航属性
@@ -47,9 +49,26 @@ public class PerformanceMetricsRecord
         MetricName = !string.IsNullOrWhiteSpace(metricName) ? metricName : throw new ArgumentException("MetricName cannot be empty", nameof(metricName));
         MetricValue = metricValue;
         MetricUnit = metricUnit ?? "count";
-        Tags = tags ?? new Dictionary<string, string>();
-        Context = context ?? new Dictionary<string, object>();
+        TagEntries = new List<MetricTagEntry>();
+        ContextEntries = new List<MetricContextEntry>();
         AggregationPeriod = aggregationPeriod;
+
+        // 如果提供了字典参数，转换为Entry实体
+        if (tags != null)
+        {
+            foreach (var tag in tags)
+            {
+                TagEntries.Add(new MetricTagEntry(MetricId, tag.Key, tag.Value));
+            }
+        }
+
+        if (context != null)
+        {
+            foreach (var ctx in context)
+            {
+                ContextEntries.Add(new MetricContextEntry(MetricId, ctx.Key, ctx.Value));
+            }
+        }
     }
 
     /// <summary>
@@ -59,7 +78,16 @@ public class PerformanceMetricsRecord
     {
         if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(value))
         {
-            Tags[key] = value;
+            // 检查是否已存在，如果存在则更新
+            var existingTag = TagEntries.FirstOrDefault(t => t.TagKey == key);
+            if (existingTag != null)
+            {
+                existingTag.UpdateValue(value);
+            }
+            else
+            {
+                TagEntries.Add(new MetricTagEntry(MetricId, key, value));
+            }
         }
     }
 
@@ -70,8 +98,57 @@ public class PerformanceMetricsRecord
     {
         if (!string.IsNullOrWhiteSpace(key) && value != null)
         {
-            Context[key] = value;
+            // 检查是否已存在，如果存在则更新
+            var existingContext = ContextEntries.FirstOrDefault(c => c.ContextKey == key);
+            if (existingContext != null)
+            {
+                existingContext.UpdateValue(value);
+            }
+            else
+            {
+                ContextEntries.Add(new MetricContextEntry(MetricId, key, value));
+            }
         }
+    }
+
+    /// <summary>
+    /// 获取Tags字典（向后兼容）
+    /// </summary>
+    public Dictionary<string, string> GetTags()
+    {
+        return TagEntries.ToDictionary(t => t.TagKey, t => t.TagValue);
+    }
+
+    /// <summary>
+    /// 获取Context字典（向后兼容）
+    /// </summary>
+    public Dictionary<string, object> GetContext()
+    {
+        return ContextEntries.ToDictionary(c => c.ContextKey, c => c.GetObjectValue() ?? new object());
+    }
+
+    /// <summary>
+    /// 获取指定key的标签值
+    /// </summary>
+    public string? GetTag(string key)
+    {
+        return TagEntries.FirstOrDefault(t => t.TagKey == key)?.TagValue;
+    }
+
+    /// <summary>
+    /// 获取指定key的上下文值
+    /// </summary>
+    public T? GetContext<T>(string key) where T : class
+    {
+        return ContextEntries.FirstOrDefault(c => c.ContextKey == key)?.GetValue<T>();
+    }
+
+    /// <summary>
+    /// 获取指定key的上下文值（值类型）
+    /// </summary>
+    public T? GetContextValue<T>(string key) where T : struct
+    {
+        return ContextEntries.FirstOrDefault(c => c.ContextKey == key)?.GetValue<T?>();
     }
 
     /// <summary>

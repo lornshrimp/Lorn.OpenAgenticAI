@@ -1,26 +1,91 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lorn.OpenAgenticAI.Domain.Models.Common;
+using Lorn.OpenAgenticAI.Domain.Models.Workflow;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 
 /// <summary>
 /// 步骤参数值对象
 /// </summary>
+[ValueObject]
 public class StepParameters : ValueObject
 {
-    public Dictionary<string, object> InputParameters { get; private set; } = [];
-    public Dictionary<string, object> OutputParameters { get; private set; } = [];
-    public Dictionary<string, string> ParameterMappings { get; private set; } = [];
+    public Guid Id { get; private set; }
+
+    // 导航属性 - 指向实际的参数条目
+    public virtual ICollection<StepParameterEntry> ParameterEntries { get; private set; } = new List<StepParameterEntry>();
+
+    // EF Core 需要的无参数构造函数
+    private StepParameters()
+    {
+        Id = Guid.NewGuid();
+        ParameterEntries = new List<StepParameterEntry>();
+    }
 
     public StepParameters(
         Dictionary<string, object>? inputParameters = null,
         Dictionary<string, object>? outputParameters = null,
         Dictionary<string, string>? parameterMappings = null)
     {
-        InputParameters = inputParameters ?? [];
-        OutputParameters = outputParameters ?? [];
-        ParameterMappings = parameterMappings ?? [];
+        Id = Guid.NewGuid();
+        ParameterEntries = new List<StepParameterEntry>();
+
+        // 将Dictionary参数转换为ParameterEntry
+        if (inputParameters != null)
+        {
+            foreach (var kvp in inputParameters)
+            {
+                ParameterEntries.Add(new StepParameterEntry(Id, "Input", kvp.Key, kvp.Value));
+            }
+        }
+
+        if (outputParameters != null)
+        {
+            foreach (var kvp in outputParameters)
+            {
+                ParameterEntries.Add(new StepParameterEntry(Id, "Output", kvp.Key, kvp.Value));
+            }
+        }
+
+        if (parameterMappings != null)
+        {
+            foreach (var kvp in parameterMappings)
+            {
+                ParameterEntries.Add(new StepParameterEntry(Id, "Mapping", kvp.Key, kvp.Value));
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取输入参数字典（用于向后兼容）
+    /// </summary>
+    public Dictionary<string, object> GetInputParameters()
+    {
+        return ParameterEntries
+            .Where(e => e.ParameterType == "Input")
+            .ToDictionary(e => e.Key, e => e.GetValue() ?? new object());
+    }
+
+    /// <summary>
+    /// 获取输出参数字典（用于向后兼容）
+    /// </summary>
+    public Dictionary<string, object> GetOutputParameters()
+    {
+        return ParameterEntries
+            .Where(e => e.ParameterType == "Output")
+            .ToDictionary(e => e.Key, e => e.GetValue() ?? new object());
+    }
+
+    /// <summary>
+    /// 获取参数映射字典（用于向后兼容）
+    /// </summary>
+    public Dictionary<string, string> GetParameterMappings()
+    {
+        return ParameterEntries
+            .Where(e => e.ParameterType == "Mapping")
+            .ToDictionary(e => e.Key, e => e.GetValue<string>() ?? string.Empty);
     }
 
     /// <summary>
@@ -28,16 +93,16 @@ public class StepParameters : ValueObject
     /// </summary>
     public T? GetParameter<T>(string key)
     {
-        if (string.IsNullOrWhiteSpace(key) || !InputParameters.ContainsKey(key))
+        if (string.IsNullOrWhiteSpace(key))
+            return default;
+
+        var entry = ParameterEntries.FirstOrDefault(e => e.Key == key && e.ParameterType == "Input");
+        if (entry == null)
             return default;
 
         try
         {
-            var value = InputParameters[key];
-            if (value is T directValue)
-                return directValue;
-
-            return (T)Convert.ChangeType(value, typeof(T));
+            return entry.GetValue<T>();
         }
         catch
         {
@@ -46,14 +111,23 @@ public class StepParameters : ValueObject
     }
 
     /// <summary>
-    /// 设置参数
+    /// 设置输入参数
     /// </summary>
-    public void SetParameter(string key, object value)
+    public void SetInputParameter(string key, object value)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be empty", nameof(key));
 
-        InputParameters[key] = value;
+        // 查找现有的参数条目
+        var existingEntry = ParameterEntries.FirstOrDefault(e => e.Key == key && e.ParameterType == "Input");
+        if (existingEntry != null)
+        {
+            existingEntry.UpdateValue(value);
+        }
+        else
+        {
+            ParameterEntries.Add(new StepParameterEntry(Id, "Input", key, value));
+        }
     }
 
     /// <summary>
@@ -64,7 +138,16 @@ public class StepParameters : ValueObject
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be empty", nameof(key));
 
-        OutputParameters[key] = value;
+        // 查找现有的参数条目
+        var existingEntry = ParameterEntries.FirstOrDefault(e => e.Key == key && e.ParameterType == "Output");
+        if (existingEntry != null)
+        {
+            existingEntry.UpdateValue(value);
+        }
+        else
+        {
+            ParameterEntries.Add(new StepParameterEntry(Id, "Output", key, value));
+        }
     }
 
     /// <summary>
@@ -72,12 +155,19 @@ public class StepParameters : ValueObject
     /// </summary>
     public void AddParameterMapping(string sourceKey, string targetKey)
     {
-        if (string.IsNullOrWhiteSpace(sourceKey))
-            throw new ArgumentException("Source key cannot be empty", nameof(sourceKey));
-        if (string.IsNullOrWhiteSpace(targetKey))
-            throw new ArgumentException("Target key cannot be empty", nameof(targetKey));
+        if (string.IsNullOrWhiteSpace(sourceKey) || string.IsNullOrWhiteSpace(targetKey))
+            throw new ArgumentException("Keys cannot be empty");
 
-        ParameterMappings[sourceKey] = targetKey;
+        // 查找现有的映射条目
+        var existingEntry = ParameterEntries.FirstOrDefault(e => e.Key == sourceKey && e.ParameterType == "Mapping");
+        if (existingEntry != null)
+        {
+            existingEntry.UpdateValue(targetKey);
+        }
+        else
+        {
+            ParameterEntries.Add(new StepParameterEntry(Id, "Mapping", sourceKey, targetKey));
+        }
     }
 
     /// <summary>
@@ -87,10 +177,13 @@ public class StepParameters : ValueObject
     {
         var result = new ValidationResult();
 
+        var inputParams = GetInputParameters();
+        var mappings = GetParameterMappings();
+
         // 验证参数映射
-        foreach (var mapping in ParameterMappings)
+        foreach (var mapping in mappings)
         {
-            if (!InputParameters.ContainsKey(mapping.Key))
+            if (!inputParams.ContainsKey(mapping.Key))
             {
                 result.AddError($"InputParameters.{mapping.Key}", $"Required parameter '{mapping.Key}' is missing");
             }
@@ -101,22 +194,13 @@ public class StepParameters : ValueObject
 
     protected override IEnumerable<object> GetAtomicValues()
     {
-        foreach (var kvp in InputParameters)
+        yield return Id;
+
+        foreach (var entry in ParameterEntries.OrderBy(e => e.ParameterType).ThenBy(e => e.Key))
         {
-            yield return kvp.Key;
-            yield return kvp.Value;
-        }
-        
-        foreach (var kvp in OutputParameters)
-        {
-            yield return kvp.Key;
-            yield return kvp.Value;
-        }
-        
-        foreach (var kvp in ParameterMappings)
-        {
-            yield return kvp.Key;
-            yield return kvp.Value;
+            yield return entry.ParameterType;
+            yield return entry.Key;
+            yield return entry.ValueJson;
         }
     }
 }
@@ -147,59 +231,44 @@ public class Version : ValueObject, IComparable<Version>
         if (string.IsNullOrWhiteSpace(versionString))
             throw new ArgumentException("Version string cannot be empty", nameof(versionString));
 
-        var parts = versionString.Split('-');
-        var versionPart = parts[0];
-        var suffix = parts.Length > 1 ? parts[1] : null;
+        var parts = versionString.Split('.');
+        if (parts.Length < 3)
+            throw new ArgumentException("Version string must have at least major.minor.patch format", nameof(versionString));
 
-        var versionNumbers = versionPart.Split('.');
-        if (versionNumbers.Length < 3)
-            throw new ArgumentException("Version string must have at least 3 parts (major.minor.patch)", nameof(versionString));
-
-        if (!int.TryParse(versionNumbers[0], out int major) ||
-            !int.TryParse(versionNumbers[1], out int minor) ||
-            !int.TryParse(versionNumbers[2], out int patch))
+        if (!int.TryParse(parts[0], out var major) ||
+            !int.TryParse(parts[1], out var minor) ||
+            !int.TryParse(parts[2], out var patch))
         {
             throw new ArgumentException("Invalid version format", nameof(versionString));
         }
 
+        string? suffix = parts.Length > 3 ? string.Join(".", parts[3..]) : null;
         return new Version(major, minor, patch, suffix);
+    }
+
+    /// <summary>
+    /// 比较版本
+    /// </summary>
+    public int CompareTo(Version? other)
+    {
+        if (other == null) return 1;
+
+        int majorComparison = Major.CompareTo(other.Major);
+        if (majorComparison != 0) return majorComparison;
+
+        int minorComparison = Minor.CompareTo(other.Minor);
+        if (minorComparison != 0) return minorComparison;
+
+        int patchComparison = Patch.CompareTo(other.Patch);
+        if (patchComparison != 0) return patchComparison;
+
+        return string.Compare(Suffix, other.Suffix, StringComparison.OrdinalIgnoreCase);
     }
 
     public override string ToString()
     {
         var version = $"{Major}.{Minor}.{Patch}";
-        return string.IsNullOrWhiteSpace(Suffix) ? version : $"{version}-{Suffix}";
-    }
-
-    public int CompareTo(Version? other)
-    {
-        if (other == null) return 1;
-
-        var majorComparison = Major.CompareTo(other.Major);
-        if (majorComparison != 0) return majorComparison;
-
-        var minorComparison = Minor.CompareTo(other.Minor);
-        if (minorComparison != 0) return minorComparison;
-
-        var patchComparison = Patch.CompareTo(other.Patch);
-        if (patchComparison != 0) return patchComparison;
-
-        // 主版本相同，比较后缀
-        return string.Compare(Suffix, other.Suffix, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// 检查是否兼容一个版本号
-    /// </summary>
-    public bool IsCompatible(Version other)
-    {
-        if (other == null) return false;
-
-        // 主版本号必须相同
-        if (Major != other.Major) return false;
-
-        // 当前版本的次版本号必须大于或等于目标版本
-        return Minor >= other.Minor;
+        return string.IsNullOrEmpty(Suffix) ? version : $"{version}.{Suffix}";
     }
 
     protected override IEnumerable<object> GetAtomicValues()
@@ -207,6 +276,6 @@ public class Version : ValueObject, IComparable<Version>
         yield return Major;
         yield return Minor;
         yield return Patch;
-        if (Suffix != null) yield return Suffix;
+        yield return Suffix ?? string.Empty;
     }
 }

@@ -8,6 +8,7 @@ namespace Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 /// <summary>
 /// 模型参数值对象
 /// </summary>
+[ValueObject]
 public class ModelParameters : ValueObject
 {
     public double Temperature { get; private set; }
@@ -17,7 +18,10 @@ public class ModelParameters : ValueObject
     public double PresencePenalty { get; private set; }
     public double FrequencyPenalty { get; private set; }
     public List<string> StopSequences { get; private set; } = new();
-    public Dictionary<string, object> AdditionalParameters { get; private set; } = new();
+
+    // 注意：AdditionalParameters 不再直接存储在这里
+    // 它将通过 ModelParameterEntry 实体在数据库中单独存储
+    // 在运行时可以通过 GetAdditionalParameters/SetAdditionalParameters 方法访问
 
     public ModelParameters(
         double temperature = 0.7,
@@ -26,8 +30,7 @@ public class ModelParameters : ValueObject
         int? maxTokens = null,
         double presencePenalty = 0.0,
         double frequencyPenalty = 0.0,
-        List<string>? stopSequences = null,
-        Dictionary<string, object>? additionalParameters = null)
+        List<string>? stopSequences = null)
     {
         Temperature = Math.Max(0.0, Math.Min(2.0, temperature));
         TopP = Math.Max(0.0, Math.Min(1.0, topP));
@@ -36,7 +39,6 @@ public class ModelParameters : ValueObject
         PresencePenalty = Math.Max(-2.0, Math.Min(2.0, presencePenalty));
         FrequencyPenalty = Math.Max(-2.0, Math.Min(2.0, frequencyPenalty));
         StopSequences = stopSequences ?? new List<string>();
-        AdditionalParameters = additionalParameters ?? new Dictionary<string, object>();
     }
 
     /// <summary>
@@ -81,6 +83,8 @@ public class ModelParameters : ValueObject
 
     /// <summary>
     /// 合并参数（覆盖的参数将替换现有参数）
+    /// 注意：由于 AdditionalParameters 现在存储在单独的实体中，
+    /// 此方法只合并基本参数，附加参数需要在应用层处理
     /// </summary>
     public ModelParameters MergeWith(ModelParameters? overrides)
     {
@@ -94,19 +98,8 @@ public class ModelParameters : ValueObject
             overrides.MaxTokens ?? MaxTokens,
             overrides.PresencePenalty != 0.0 ? overrides.PresencePenalty : PresencePenalty,
             overrides.FrequencyPenalty != 0.0 ? overrides.FrequencyPenalty : FrequencyPenalty,
-            overrides.StopSequences.Any() ? overrides.StopSequences : StopSequences,
-            MergeAdditionalParameters(overrides.AdditionalParameters)
+            overrides.StopSequences.Any() ? overrides.StopSequences : StopSequences
         );
-    }
-
-    private Dictionary<string, object> MergeAdditionalParameters(Dictionary<string, object> overrides)
-    {
-        var merged = new Dictionary<string, object>(AdditionalParameters);
-        foreach (var kvp in overrides)
-        {
-            merged[kvp.Key] = kvp.Value;
-        }
-        return merged;
     }
 
     /// <summary>
@@ -151,47 +144,46 @@ public class ModelParameters : ValueObject
         yield return MaxTokens ?? (object)"null";
         yield return PresencePenalty;
         yield return FrequencyPenalty;
-        
+
         foreach (var seq in StopSequences.OrderBy(s => s))
         {
             yield return seq;
         }
-        
-        foreach (var kvp in AdditionalParameters.OrderBy(p => p.Key))
-        {
-            yield return kvp.Key;
-            yield return kvp.Value ?? "null";
-        }
+
+        // 注意：AdditionalParameters 现在不包含在值对象比较中
+        // 因为它们存储在单独的实体中，需要在应用层进行比较
     }
 }
 
 /// <summary>
 /// 质量设置值对象
 /// </summary>
+[ValueObject]
 public class QualitySettings : ValueObject
 {
     public double ResponseQualityThreshold { get; private set; }
     public int LatencyThresholdMs { get; private set; }
     public double ErrorRateThreshold { get; private set; }
     public bool EnableQualityMonitoring { get; private set; }
-    public Dictionary<string, double> CustomThresholds { get; private set; } = new();
+
+    // 注意：CustomThresholds 不再直接存储在这里
+    // 它将通过 QualityThresholdEntry 实体在数据库中单独存储
 
     public QualitySettings(
         double responseQualityThreshold = 0.8,
         int latencyThresholdMs = 5000,
         double errorRateThreshold = 0.05,
-        bool enableQualityMonitoring = true,
-        Dictionary<string, double>? customThresholds = null)
+        bool enableQualityMonitoring = true)
     {
         ResponseQualityThreshold = Math.Max(0.0, Math.Min(1.0, responseQualityThreshold));
         LatencyThresholdMs = Math.Max(100, latencyThresholdMs);
         ErrorRateThreshold = Math.Max(0.0, Math.Min(1.0, errorRateThreshold));
         EnableQualityMonitoring = enableQualityMonitoring;
-        CustomThresholds = customThresholds ?? new Dictionary<string, double>();
     }
 
     /// <summary>
     /// 检查是否符合质量标准
+    /// 注意：自定义阈值检查需要在应用层通过 QualityThresholdEntry 实体进行
     /// </summary>
     public bool IsWithinQualityStandards(QualityMetrics metrics)
     {
@@ -207,16 +199,7 @@ public class QualitySettings : ValueObject
         if (metrics.ErrorRate > ErrorRateThreshold)
             return false;
 
-        // 检查自定义阈值
-        foreach (var threshold in CustomThresholds)
-        {
-            if (metrics.CustomMetrics.TryGetValue(threshold.Key, out var value))
-            {
-                if (value < threshold.Value)
-                    return false;
-            }
-        }
-
+        // 自定义阈值检查现在需要在应用层处理
         return true;
     }
 
@@ -226,12 +209,9 @@ public class QualitySettings : ValueObject
         yield return LatencyThresholdMs;
         yield return ErrorRateThreshold;
         yield return EnableQualityMonitoring;
-        
-        foreach (var kvp in CustomThresholds.OrderBy(t => t.Key))
-        {
-            yield return kvp.Key;
-            yield return kvp.Value;
-        }
+
+        // 注意：CustomThresholds 现在不包含在值对象比较中
+        // 因为它们存储在单独的实体中，需要在应用层进行比较
     }
 }
 

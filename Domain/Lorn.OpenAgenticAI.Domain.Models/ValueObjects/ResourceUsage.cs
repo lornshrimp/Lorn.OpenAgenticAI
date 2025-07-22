@@ -15,6 +15,16 @@ public class ResourceUsage : ValueObject
     public long NetworkIOBytes { get; private set; }
     public Dictionary<string, double> CustomMetrics { get; private set; } = new();
 
+    // EF Core 需要的无参数构造函数
+    private ResourceUsage()
+    {
+        CpuUsagePercent = 0;
+        MemoryUsageBytes = 0;
+        DiskIOBytes = 0;
+        NetworkIOBytes = 0;
+        CustomMetrics = new Dictionary<string, double>();
+    }
+
     public ResourceUsage(
         double cpuUsagePercent,
         long memoryUsageBytes,
@@ -46,7 +56,7 @@ public class ResourceUsage : ValueObject
         yield return MemoryUsageBytes;
         yield return DiskIOBytes;
         yield return NetworkIOBytes;
-        
+
         foreach (var kvp in CustomMetrics)
         {
             yield return kvp.Key;

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Lorn.OpenAgenticAI.Domain.Models.Common;
+using Lorn.OpenAgenticAI.Domain.Models.Workflow;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 
@@ -11,7 +14,13 @@ public class WorkflowDefinition : ValueObject
 {
     public string WorkflowFormat { get; private set; } = string.Empty;
     public string SerializedDefinition { get; private set; } = string.Empty;
-    public Dictionary<string, object> Metadata { get; private set; } = new();
+
+    /// <summary>
+    /// 工作流元数据条目（导航属性）
+    /// </summary>
+    [NotMapped]
+    public virtual ICollection<WorkflowMetadataEntry> MetadataEntries { get; set; } = new List<WorkflowMetadataEntry>();
+
     public List<WorkflowVariable> Variables { get; private set; } = new();
 
     public WorkflowDefinition(
@@ -22,8 +31,44 @@ public class WorkflowDefinition : ValueObject
     {
         WorkflowFormat = !string.IsNullOrWhiteSpace(workflowFormat) ? workflowFormat : throw new ArgumentException("WorkflowFormat cannot be empty", nameof(workflowFormat));
         SerializedDefinition = !string.IsNullOrWhiteSpace(serializedDefinition) ? serializedDefinition : throw new ArgumentException("SerializedDefinition cannot be empty", nameof(serializedDefinition));
-        Metadata = metadata ?? new Dictionary<string, object>();
+        MetadataEntries = new List<WorkflowMetadataEntry>();
         Variables = variables ?? new List<WorkflowVariable>();
+
+        // 如果提供了元数据字典，转换为实体对象
+        if (metadata != null)
+        {
+            foreach (var kvp in metadata)
+            {
+                MetadataEntries.Add(new WorkflowMetadataEntry(kvp.Key, kvp.Value));
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取元数据字典（向后兼容）
+    /// </summary>
+    public Dictionary<string, object> GetMetadata()
+    {
+        return MetadataEntries
+            .Where(e => e.IsEnabled)
+            .ToDictionary(e => e.MetadataKey, e => e.GetValue() ?? new object());
+    }
+
+    /// <summary>
+    /// 设置元数据（向后兼容）
+    /// </summary>
+    public void SetMetadata(string key, object value)
+    {
+        var existing = MetadataEntries.FirstOrDefault(e => e.MetadataKey == key);
+        if (existing != null)
+        {
+            existing.SetValue(value);
+            existing.SetEnabled(true);
+        }
+        else
+        {
+            MetadataEntries.Add(new WorkflowMetadataEntry(key, value));
+        }
     }
 
     /// <summary>
@@ -108,13 +153,13 @@ public class WorkflowDefinition : ValueObject
     {
         yield return WorkflowFormat;
         yield return SerializedDefinition;
-        
-        foreach (var kvp in Metadata)
+
+        foreach (var entry in MetadataEntries.Where(e => e.IsEnabled).OrderBy(e => e.MetadataKey))
         {
-            yield return kvp.Key;
-            yield return kvp.Value ?? "null";
+            yield return entry.MetadataKey;
+            yield return entry.GetValue() ?? "null";
         }
-        
+
         foreach (var variable in Variables)
         {
             yield return variable;

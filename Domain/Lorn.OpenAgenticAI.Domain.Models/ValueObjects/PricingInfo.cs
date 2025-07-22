@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Lorn.OpenAgenticAI.Domain.Models.Common;
+using Lorn.OpenAgenticAI.Domain.Models.LLM;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 
@@ -16,7 +19,12 @@ public class PricingInfo : ValueObject
     public decimal? AudioPrice { get; private set; }
     public int? FreeQuota { get; private set; }
     public DateTime UpdateTime { get; private set; }
-    public Dictionary<string, decimal> SpecialPricing { get; private set; } = new();
+
+    /// <summary>
+    /// 特殊定价条目（导航属性）
+    /// </summary>
+    [NotMapped]
+    public virtual ICollection<PricingSpecialEntry> SpecialPricingEntries { get; set; } = new List<PricingSpecialEntry>();
 
     public PricingInfo(
         Enumerations.Currency currency,
@@ -34,7 +42,16 @@ public class PricingInfo : ValueObject
         AudioPrice = audioPrice >= 0 ? audioPrice : null;
         FreeQuota = freeQuota >= 0 ? freeQuota : null;
         UpdateTime = DateTime.UtcNow;
-        SpecialPricing = specialPricing ?? new Dictionary<string, decimal>();
+        SpecialPricingEntries = new List<PricingSpecialEntry>();
+
+        // 如果提供了特殊定价字典，转换为实体对象
+        if (specialPricing != null)
+        {
+            foreach (var kvp in specialPricing)
+            {
+                SpecialPricingEntries.Add(new PricingSpecialEntry(kvp.Key, kvp.Value));
+            }
+        }
     }
 
     /// <summary>
@@ -49,14 +66,42 @@ public class PricingInfo : ValueObject
         {
             foreach (var usage in specialUsage)
             {
-                if (SpecialPricing.TryGetValue(usage.Key, out var price))
+                var specialEntry = SpecialPricingEntries.FirstOrDefault(e => e.PricingKey == usage.Key && e.IsEnabled);
+                if (specialEntry != null)
                 {
-                    cost += usage.Value * price;
+                    cost += usage.Value * specialEntry.Price;
                 }
             }
         }
 
         return cost;
+    }
+
+    /// <summary>
+    /// 获取特殊定价字典（向后兼容）
+    /// </summary>
+    public Dictionary<string, decimal> GetSpecialPricing()
+    {
+        return SpecialPricingEntries
+            .Where(e => e.IsEnabled)
+            .ToDictionary(e => e.PricingKey, e => e.Price);
+    }
+
+    /// <summary>
+    /// 设置特殊定价（向后兼容）
+    /// </summary>
+    public void SetSpecialPricing(string key, decimal price)
+    {
+        var existing = SpecialPricingEntries.FirstOrDefault(e => e.PricingKey == key);
+        if (existing != null)
+        {
+            existing.UpdatePrice(price);
+            existing.SetEnabled(true);
+        }
+        else
+        {
+            SpecialPricingEntries.Add(new PricingSpecialEntry(key, price));
+        }
     }
 
     /// <summary>
@@ -84,7 +129,7 @@ public class PricingInfo : ValueObject
             imagePrice ?? ImagePrice,
             audioPrice ?? AudioPrice,
             freeQuota ?? FreeQuota,
-            SpecialPricing
+            GetSpecialPricing()
         );
     }
 
@@ -97,11 +142,11 @@ public class PricingInfo : ValueObject
         yield return AudioPrice ?? (object)"null";
         yield return FreeQuota ?? (object)"null";
         yield return UpdateTime.Date; // 只比较日期部分
-        
-        foreach (var kvp in SpecialPricing)
+
+        foreach (var entry in SpecialPricingEntries.Where(e => e.IsEnabled).OrderBy(e => e.PricingKey))
         {
-            yield return kvp.Key;
-            yield return kvp.Value;
+            yield return entry.PricingKey;
+            yield return entry.Price;
         }
     }
 }
@@ -109,13 +154,25 @@ public class PricingInfo : ValueObject
 /// <summary>
 /// 使用配额值对象
 /// </summary>
+[ValueObject]
 public class UsageQuota : ValueObject
 {
+    public Guid Id { get; private set; }
     public int? DailyLimit { get; private set; }
     public int? MonthlyLimit { get; private set; }
     public decimal? CostLimit { get; private set; }
     public decimal AlertThreshold { get; private set; }
-    public Dictionary<string, int> CustomLimits { get; private set; } = new();
+
+    // 导航属性 - 指向自定义限制条目
+    public virtual ICollection<UsageQuotaCustomLimitEntry> CustomLimitEntries { get; private set; } = new List<UsageQuotaCustomLimitEntry>();
+
+    // EF Core 需要的无参数构造函数
+    private UsageQuota()
+    {
+        Id = Guid.NewGuid();
+        AlertThreshold = 0.8m;
+        CustomLimitEntries = new List<UsageQuotaCustomLimitEntry>();
+    }
 
     public UsageQuota(
         int? dailyLimit = null,
@@ -124,11 +181,21 @@ public class UsageQuota : ValueObject
         decimal alertThreshold = 0.8m,
         Dictionary<string, int>? customLimits = null)
     {
+        Id = Guid.NewGuid();
         DailyLimit = dailyLimit >= 0 ? dailyLimit : null;
         MonthlyLimit = monthlyLimit >= 0 ? monthlyLimit : null;
         CostLimit = costLimit >= 0 ? costLimit : null;
         AlertThreshold = alertThreshold >= 0 && alertThreshold <= 1 ? alertThreshold : 0.8m;
-        CustomLimits = customLimits ?? new Dictionary<string, int>();
+        CustomLimitEntries = new List<UsageQuotaCustomLimitEntry>();
+
+        // 将Dictionary转换为Entry实体
+        if (customLimits != null)
+        {
+            foreach (var kvp in customLimits)
+            {
+                CustomLimitEntries.Add(new UsageQuotaCustomLimitEntry(Id, kvp.Key, kvp.Value));
+            }
+        }
     }
 
     /// <summary>
@@ -188,15 +255,40 @@ public class UsageQuota : ValueObject
 
     protected override IEnumerable<object> GetAtomicValues()
     {
+        yield return Id;
         yield return DailyLimit ?? (object)"null";
         yield return MonthlyLimit ?? (object)"null";
         yield return CostLimit ?? (object)"null";
         yield return AlertThreshold;
-        
-        foreach (var kvp in CustomLimits)
+
+        foreach (var entry in CustomLimitEntries.OrderBy(e => e.LimitName))
         {
-            yield return kvp.Key;
-            yield return kvp.Value;
+            yield return entry.LimitName;
+            yield return entry.LimitValue;
+        }
+    }
+
+    /// <summary>
+    /// 获取自定义限制字典（用于向后兼容）
+    /// </summary>
+    public Dictionary<string, int> GetCustomLimits()
+    {
+        return CustomLimitEntries.ToDictionary(e => e.LimitName, e => e.LimitValue);
+    }
+
+    /// <summary>
+    /// 添加或更新自定义限制
+    /// </summary>
+    public void SetCustomLimit(string limitName, int limitValue)
+    {
+        var existingEntry = CustomLimitEntries.FirstOrDefault(e => e.LimitName == limitName);
+        if (existingEntry != null)
+        {
+            existingEntry.UpdateLimitValue(limitValue);
+        }
+        else
+        {
+            CustomLimitEntries.Add(new UsageQuotaCustomLimitEntry(Id, limitName, limitValue));
         }
     }
 }

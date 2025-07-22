@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.LLM;
@@ -16,7 +18,12 @@ public class ProviderUserConfiguration
     public bool IsEnabled { get; private set; }
     public int Priority { get; private set; }
     public UsageQuota UsageQuota { get; private set; } = null!;
-    public Dictionary<string, object> CustomSettings { get; private set; } = new();
+
+    /// <summary>
+    /// 自定义设置条目（导航属性）
+    /// </summary>
+    public virtual ICollection<ProviderCustomSettingEntry> CustomSettingEntries { get; set; } = new List<ProviderCustomSettingEntry>();
+
     public DateTime CreatedTime { get; private set; }
     public DateTime UpdatedTime { get; private set; }
     public DateTime? LastUsedTime { get; private set; }
@@ -45,9 +52,18 @@ public class ProviderUserConfiguration
         IsEnabled = isEnabled;
         Priority = priority > 0 ? priority : 1;
         UsageQuota = usageQuota ?? new UsageQuota();
-        CustomSettings = customSettings ?? new Dictionary<string, object>();
+        CustomSettingEntries = new List<ProviderCustomSettingEntry>();
         CreatedTime = DateTime.UtcNow;
         UpdatedTime = DateTime.UtcNow;
+
+        // 如果提供了自定义设置字典，转换为实体对象
+        if (customSettings != null)
+        {
+            foreach (var kvp in customSettings)
+            {
+                CustomSettingEntries.Add(new ProviderCustomSettingEntry(ConfigurationId, kvp.Key, kvp.Value));
+            }
+        }
     }
 
     /// <summary>
@@ -126,9 +142,65 @@ public class ProviderUserConfiguration
             UsageQuota = usageQuota;
 
         if (customSettings != null)
-            CustomSettings = customSettings;
+        {
+            // 清除现有设置并添加新设置
+            CustomSettingEntries.Clear();
+            foreach (var kvp in customSettings)
+            {
+                CustomSettingEntries.Add(new ProviderCustomSettingEntry(ConfigurationId, kvp.Key, kvp.Value));
+            }
+        }
 
         UpdatedTime = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// 获取自定义设置字典（向后兼容）
+    /// </summary>
+    public Dictionary<string, object> GetCustomSettings()
+    {
+        return CustomSettingEntries
+            .Where(e => e.IsEnabled)
+            .ToDictionary(e => e.SettingKey, e => e.GetObjectValue() ?? string.Empty);
+    }
+
+    /// <summary>
+    /// 设置自定义设置值
+    /// </summary>
+    public void SetCustomSetting(string key, object value)
+    {
+        var existingEntry = CustomSettingEntries.FirstOrDefault(e => e.SettingKey == key);
+        if (existingEntry != null)
+        {
+            existingEntry.UpdateValue(value);
+        }
+        else
+        {
+            CustomSettingEntries.Add(new ProviderCustomSettingEntry(ConfigurationId, key, value));
+        }
+        UpdatedTime = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// 获取自定义设置值
+    /// </summary>
+    public T? GetCustomSetting<T>(string key)
+    {
+        var entry = CustomSettingEntries.FirstOrDefault(e => e.SettingKey == key && e.IsEnabled);
+        return entry != null ? entry.GetValue<T>() : default;
+    }
+
+    /// <summary>
+    /// 移除自定义设置
+    /// </summary>
+    public void RemoveCustomSetting(string key)
+    {
+        var entry = CustomSettingEntries.FirstOrDefault(e => e.SettingKey == key);
+        if (entry != null)
+        {
+            CustomSettingEntries.Remove(entry);
+            UpdatedTime = DateTime.UtcNow;
+        }
     }
 
     /// <summary>

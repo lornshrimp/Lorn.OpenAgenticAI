@@ -5,6 +5,7 @@ namespace Lorn.OpenAgenticAI.Domain.Models.Enumerations;
 /// <summary>
 /// Ö´ÐÐ×´Ì¬Ã¶¾Ù
 /// </summary>
+[Enumeration]
 public class ExecutionStatus : Enumeration
 {
     public static ExecutionStatus Pending = new(1, nameof(Pending));

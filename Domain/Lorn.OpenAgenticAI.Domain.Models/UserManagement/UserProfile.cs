@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Lorn.OpenAgenticAI.Domain.Models.Common;
 
 namespace Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 
 /// <summary>
 /// 用户档案实体
 /// </summary>
-public class UserProfile
+public class UserProfile : IAggregateRoot
 {
     public Guid UserId { get; private set; }
     public string Username { get; set; } = string.Empty;
@@ -16,12 +17,18 @@ public class UserProfile
     public bool IsActive { get; private set; }
     public int ProfileVersion { get; private set; }
     public ValueObjects.SecuritySettings SecuritySettings { get; private set; } = null!;
-    public Dictionary<string, object> Metadata { get; private set; } = new();
+
+    // 注意：Metadata 不再直接存储在这里
+    // 它将通过 UserMetadataEntry 实体在数据库中单独存储
+
+    // IAggregateRoot 接口实现
+    public Guid Id => UserId;
 
     // 导航属性
     public virtual ICollection<UserPreferences> UserPreferences { get; private set; } = new List<UserPreferences>();
     public virtual ICollection<Execution.TaskExecutionHistory> ExecutionHistories { get; private set; } = new List<Execution.TaskExecutionHistory>();
     public virtual ICollection<Workflow.WorkflowTemplate> WorkflowTemplates { get; private set; } = new List<Workflow.WorkflowTemplate>();
+    public virtual ICollection<UserMetadataEntry> MetadataEntries { get; private set; } = new List<UserMetadataEntry>();
 
     // 私有构造函数用于EF Core
     private UserProfile()
@@ -37,8 +44,7 @@ public class UserProfile
         Guid userId,
         string username,
         string email,
-        ValueObjects.SecuritySettings securitySettings,
-        Dictionary<string, object>? metadata = null)
+        ValueObjects.SecuritySettings securitySettings)
     {
         UserId = userId == Guid.Empty ? Guid.NewGuid() : userId;
         Username = !string.IsNullOrWhiteSpace(username) ? username : throw new ArgumentException("Username cannot be empty", nameof(username));
@@ -48,7 +54,7 @@ public class UserProfile
         IsActive = true;
         ProfileVersion = 1;
         SecuritySettings = securitySettings ?? throw new ArgumentNullException(nameof(securitySettings));
-        Metadata = metadata ?? new Dictionary<string, object>();
+        // Metadata 现在通过 UserMetadataEntry 实体管理
     }
 
     /// <summary>

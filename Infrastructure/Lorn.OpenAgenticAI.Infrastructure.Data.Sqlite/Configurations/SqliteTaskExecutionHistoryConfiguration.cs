@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Lorn.OpenAgenticAI.Domain.Models.Execution;
 using Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
+using Lorn.OpenAgenticAI.Domain.Models.Common;
+using Lorn.OpenAgenticAI.Domain.Models.Enumerations;
 using System.Text.Json;
 
 namespace Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite.Configurations;
@@ -69,9 +71,12 @@ public class SqliteTaskExecutionHistoryConfiguration : IEntityTypeConfiguration<
         builder.Property(e => e.IsSuccessful)
             .HasConversion<int>();
 
-        // 枚举字段配置
+        // 枚举字段配置 - ExecutionStatus转换为整数存储
         builder.Property(e => e.ExecutionStatus)
-            .HasConversion<string>();
+            .HasConversion(
+                status => status.Id,
+                id => Enumeration.FromValue<ExecutionStatus>(id)
+            );
 
         // 复杂对象配置（JSON序列化）
         builder.Property(e => e.Tags)
