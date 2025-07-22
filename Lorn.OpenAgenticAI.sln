@@ -83,6 +83,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lorn.OpenAgenticAI.Infrastr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.OpenAgenticAI.Shared.Contracts", "Shared\Lorn.OpenAgenticAI.Shared.Contracts\Lorn.OpenAgenticAI.Shared.Contracts.csproj", "{8A232A9D-A506-40DC-9823-4C9EFBDD5C17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.OpenAgenticAI.Domain.LLM", "Domain\Lorn.OpenAgenticAI.Domain.LLM\Lorn.OpenAgenticAI.Domain.LLM.csproj", "{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +115,10 @@ Global
 		{8A232A9D-A506-40DC-9823-4C9EFBDD5C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A232A9D-A506-40DC-9823-4C9EFBDD5C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A232A9D-A506-40DC-9823-4C9EFBDD5C17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -124,6 +130,8 @@ Global
 		{A11C044C-6DE1-444B-8356-EB83E751687F} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
 		{55D87D98-183C-4DF3-9435-6C0950A5DFD1} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
 		{D527F9CA-559C-49F6-4160-2B5C3AF98A73} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
+		{8A232A9D-A506-40DC-9823-4C9EFBDD5C17} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
+		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA} = {996CEBED-A05B-5D42-3FF0-982E087A2599}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CA1D927-5DEF-4DF9-9A04-FB9E61983FAD}

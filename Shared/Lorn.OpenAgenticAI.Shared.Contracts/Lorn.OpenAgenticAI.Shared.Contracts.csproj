@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Microsoft.SemanticKernel 抽象包（仅包含接口和抽象类） -->
+    <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.29.0" />
+    
+    <!-- JSON 序列化 -->
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
+
 </Project>
