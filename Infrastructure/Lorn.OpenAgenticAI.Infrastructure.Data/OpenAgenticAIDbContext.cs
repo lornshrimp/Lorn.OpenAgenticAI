@@ -27,6 +27,7 @@ public abstract class OpenAgenticAIDbContext : DbContext
 
     // 用户管理相关
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
+    public DbSet<UserPreferences> UserPreferences { get; set; } = null!;
     public DbSet<UserMetadataEntry> UserMetadataEntries { get; set; } = null!;
 
     // 任务执行相关

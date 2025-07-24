@@ -85,6 +85,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.OpenAgenticAI.Shared.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.OpenAgenticAI.Domain.LLM", "Domain\Lorn.OpenAgenticAI.Domain.LLM\Lorn.OpenAgenticAI.Domain.LLM.csproj", "{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{2CDFC2B4-03A0-2A52-1000-A892D95DD3FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.OpenAgenticAI.Tests.Infrastructure.Data.Repositorie", "Tests\Infrastructure\Lorn.OpenAgenticAI.Tests.Infrastructure.Data.Repositorie\Lorn.OpenAgenticAI.Tests.Infrastructure.Data.Repositorie.csproj", "{B0304B78-0FAD-DC3E-0269-616A9C066B91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lorn.OpenAgenticAI.Infrastructure.Data.Specifications", "Infrastructure\Lorn.OpenAgenticAI.Infrastructure.Data.Specifications\Lorn.OpenAgenticAI.Infrastructure.Data.Specifications.csproj", "{45C7F412-3040-4D19-F8AC-1FE18B93ACAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +127,14 @@ Global
 		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0304B78-0FAD-DC3E-0269-616A9C066B91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0304B78-0FAD-DC3E-0269-616A9C066B91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0304B78-0FAD-DC3E-0269-616A9C066B91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0304B78-0FAD-DC3E-0269-616A9C066B91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45C7F412-3040-4D19-F8AC-1FE18B93ACAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45C7F412-3040-4D19-F8AC-1FE18B93ACAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45C7F412-3040-4D19-F8AC-1FE18B93ACAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45C7F412-3040-4D19-F8AC-1FE18B93ACAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +148,9 @@ Global
 		{D527F9CA-559C-49F6-4160-2B5C3AF98A73} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
 		{8A232A9D-A506-40DC-9823-4C9EFBDD5C17} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 		{C80DCCDF-F864-EEA4-6999-5E16B5D30EDA} = {996CEBED-A05B-5D42-3FF0-982E087A2599}
+		{2CDFC2B4-03A0-2A52-1000-A892D95DD3FA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{B0304B78-0FAD-DC3E-0269-616A9C066B91} = {2CDFC2B4-03A0-2A52-1000-A892D95DD3FA}
+		{45C7F412-3040-4D19-F8AC-1FE18B93ACAA} = {DFEE68D8-A7D0-1A41-506C-9B74AA9A7B7B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CA1D927-5DEF-4DF9-9A04-FB9E61983FAD}
