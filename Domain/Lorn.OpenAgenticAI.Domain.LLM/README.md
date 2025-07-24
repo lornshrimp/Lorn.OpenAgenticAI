@@ -29,7 +29,7 @@
 
 ### 1. 服务层 (Services/)
 
-#### ILLMService / LLMServiceNew
+#### ILLMService / LLMService
 - **职责**: 提供统一的LLM服务接口
 - **功能**: 
   - 异步请求处理 (`SendRequestAsync`)
@@ -37,7 +37,7 @@
   - 批量处理 (`SendBatchRequestAsync`)
   - 集成缓存、指标收集和错误处理
 
-#### IModelManager / ModelManagerNew  
+#### IModelManager / ModelManager  
 - **职责**: 管理LLM模型配置和生命周期
 - **功能**:
   - 模型配置CRUD操作
@@ -45,7 +45,7 @@
   - 模型可用性检查 (`CheckModelAvailabilityAsync`)
   - 支持模型的动态加载和卸载
 
-#### IKernelManager / KernelManagerNew
+#### IKernelManager / KernelManager
 - **职责**: 管理SemanticKernel实例
 - **功能**:
   - Kernel创建和缓存 (`GetKernelAsync`)
@@ -53,7 +53,7 @@
   - 自动服务注册和配置
   - Kernel生命周期管理
 
-#### IRequestRouter / RequestRouterNew
+#### IRequestRouter / RequestRouter
 - **职责**: 智能请求路由
 - **功能**:
   - 基于请求特征的模型选择
