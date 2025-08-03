@@ -11,6 +11,10 @@
 .sarif/
 .devcontainer/
 .kiro/
+.superdesign/
+CLAUDE.md
+.windsurfrules
+.roomodes
 *.swp
 *.swo
 *~

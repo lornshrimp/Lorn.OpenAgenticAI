@@ -29,6 +29,7 @@ public abstract class OpenAgenticAIDbContext : DbContext
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
     public DbSet<UserPreferences> UserPreferences { get; set; } = null!;
     public DbSet<UserMetadataEntry> UserMetadataEntries { get; set; } = null!;
+    public DbSet<UserSecurityLog> UserSecurityLogs { get; set; } = null!;
 
     // 任务执行相关
     public DbSet<TaskExecutionHistory> TaskExecutionHistories { get; set; } = null!;
@@ -211,6 +212,23 @@ public abstract class OpenAgenticAIDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.PreferenceCategory, e.PreferenceKey }).IsUnique();
         });
 
+        // UserSecurityLog 配置
+        modelBuilder.Entity<UserSecurityLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Description).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.EventDetails).HasMaxLength(2000);
+            entity.Property(e => e.IpAddress).HasMaxLength(45);
+            entity.Property(e => e.DeviceInfo).HasMaxLength(200);
+            entity.Property(e => e.MachineId).HasMaxLength(100);
+            entity.Property(e => e.Source).HasMaxLength(100);
+            entity.Property(e => e.SessionId).HasMaxLength(100);
+            entity.Property(e => e.ErrorCode).HasMaxLength(50);
+            entity.HasIndex(e => new { e.UserId, e.Timestamp });
+            entity.HasIndex(e => new { e.EventType, e.Timestamp });
+            entity.HasIndex(e => new { e.Severity, e.Timestamp });
+        });
+
         // Entry实体配置
         modelBuilder.Entity<ProviderCustomSettingEntry>(entity =>
         {
@@ -287,6 +305,13 @@ public abstract class OpenAgenticAIDbContext : DbContext
             .HasOne(m => m.User)
             .WithMany(u => u.MetadataEntries)
             .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // UserProfile -> UserSecurityLogs (一对多)
+        modelBuilder.Entity<UserSecurityLog>()
+            .HasOne(log => log.User)
+            .WithMany()
+            .HasForeignKey(log => log.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // ModelProvider -> Models (一对多)

@@ -24,6 +24,9 @@ public static class RepositoryServiceExtensions
         // 注册用户元数据仓储
         services.AddScoped<IUserMetadataRepository, UserMetadataRepository>();
 
+        // 注册用户安全日志仓储
+        services.AddScoped<IUserSecurityLogRepository, UserSecurityLogRepository>();
+
         return services;
     }
 

@@ -16,6 +16,7 @@ public static class SecurityServiceExtensions
     public static IServiceCollection AddSecurityServices(this IServiceCollection services)
     {
         services.AddScoped<ICryptoService, CryptoService>();
+        services.AddScoped<ISecurityLogService, SecurityLogService>();
 
         return services;
     }
