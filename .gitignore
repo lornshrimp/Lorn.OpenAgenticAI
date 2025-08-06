@@ -147,6 +147,7 @@ secrets.json
 # Documentation and Learning Materials
 .References/
 .github/
+.cursor/
 视频课程/
 收费专栏/
 免费专栏/
