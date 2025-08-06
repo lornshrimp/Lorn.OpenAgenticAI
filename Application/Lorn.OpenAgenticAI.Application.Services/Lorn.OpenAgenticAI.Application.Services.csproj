@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Domain\Lorn.OpenAgenticAI.Domain.Models\Lorn.OpenAgenticAI.Domain.Models.csproj" />
+    <ProjectReference Include="..\..\Domain\Lorn.OpenAgenticAI.Domain.Contracts\Lorn.OpenAgenticAI.Domain.Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\Lorn.OpenAgenticAI.Shared.Contracts\Lorn.OpenAgenticAI.Shared.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

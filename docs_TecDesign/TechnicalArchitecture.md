@@ -150,31 +150,45 @@ graph TB
 
 ```mermaid
 graph LR
-    subgraph "主进程"
-        MAIN[Lorn.OpenAgenticAI.exe]
-        DIRECTOR[Director引擎]
-        UI[MAUI界面]
+    subgraph "主进程 (用户入口)"
+        MAIN["🚀 Lorn.OpenAgenticAI.exe<br/>(主入口点)"]
+        UI[MAUI用户界面]
+        STARTUP[进程启动管理器]
     end
     
-    subgraph "服务进程"
-        SERVICE[Lorn.Service.exe]
+    subgraph "服务进程 (核心引擎)"
+        SERVICE["🔧 Lorn.OpenAgenticAI.Service.exe<br/>(后台服务)"]
+        DIRECTOR[Director调度引擎]
         WF[工作流引擎]
+        MCP[MCP协议服务]
         KB[知识库服务]
     end
     
-    subgraph "Agent进程池"
-        WORD[WordAgent.exe]
-        EXCEL[ExcelAgent.exe]
-        BROWSER[BrowserAgent.exe]
-        EMAIL[EmailAgent.exe]
+    subgraph "Agent进程池 (任务执行)"
+        WORD["📄 WordAgent.exe"]
+        EXCEL["📊 ExcelAgent.exe"]
+        PPT["📈 PowerPointAgent.exe"]
+        BROWSER["🌐 BrowserAgent.exe"]
+        EMAIL["📧 EmailAgent.exe"]
+        FILE["📁 FileAgent.exe"]
     end
     
-    MAIN --> |IPC| SERVICE
-    SERVICE --> |MCP| WORD
-    SERVICE --> |MCP| EXCEL
-    SERVICE --> |MCP| BROWSER
-    SERVICE --> |MCP| EMAIL
+    MAIN --> |启动管理| SERVICE
+    MAIN --> |IPC通信| SERVICE
+    SERVICE --> |MCP协议| WORD
+    SERVICE --> |MCP协议| EXCEL
+    SERVICE --> |MCP协议| PPT
+    SERVICE --> |MCP协议| BROWSER
+    SERVICE --> |MCP协议| EMAIL
+    SERVICE --> |MCP协议| FILE
 ```
+
+**进程启动顺序**:
+1. 用户启动 `Lorn.OpenAgenticAI.exe` (主入口点)
+2. 主进程检查并启动 `Lorn.OpenAgenticAI.Service.exe`
+3. 服务进程根据需要启动各个Agent进程
+4. 建立进程间通信连接
+5. 系统就绪，用户可以开始使用
 
 ### 2.4 数据流架构
 
@@ -347,9 +361,13 @@ KnowledgeEntry 1:N KnowledgeIndex
 ```text
 Lorn.OpenAgenticAI.sln
 ├── src/
-│   ├── 1.Presentation/                  # 表示层
-│   │   ├── Lorn.OpenAgenticAI.MAUI/     # MAUI客户端应用
-│   │   └── Lorn.OpenAgenticAI.Web/      # Web管理界面
+│   ├── 0.Host/                          # 宿主层 - 程序入口点
+│   │   └── Lorn.OpenAgenticAI.Host/     # 🚀 主程序入口点 (生成 Lorn.OpenAgenticAI.exe)
+│   │
+│   ├── 1.Presentation/                  # 表示层 - 界面展现和交互
+│   │   ├── Lorn.OpenAgenticAI.UI.MAUI/  # 📱 MAUI界面类库
+│   │   ├── Lorn.OpenAgenticAI.Service/  # 🔧 后台服务进程 (生成 Lorn.OpenAgenticAI.Service.exe)
+│   │   └── Lorn.OpenAgenticAI.Web/      # 🌐 Web管理界面 (可选组件)
 │   │
 │   ├── 2.Application/                   # 应用服务层
 │   │   ├── Lorn.OpenAgenticAI.Application.Director/   # Director调度引擎
@@ -371,8 +389,12 @@ Lorn.OpenAgenticAI.sln
 │   ├── 5.Agents/                        # Agent生态系统
 │   │   ├── Lorn.OpenAgenticAI.Agents.Core/            # Agent基础框架
 │   │   ├── Lorn.OpenAgenticAI.Agents.Office/          # Office Agent套件
-│   │   ├── Lorn.OpenAgenticAI.Agents.Browser/         # 浏览器Agent
-│   │   ├── Lorn.OpenAgenticAI.Agents.Email/           # 邮件Agent
+│   │   │   ├── Lorn.OpenAgenticAI.Agents.Word/        # 📄 Word Agent (生成 WordAgent.exe)
+│   │   │   ├── Lorn.OpenAgenticAI.Agents.Excel/       # 📊 Excel Agent (生成 ExcelAgent.exe)
+│   │   │   └── Lorn.OpenAgenticAI.Agents.PowerPoint/  # 📈 PowerPoint Agent (生成 PowerPointAgent.exe)
+│   │   ├── Lorn.OpenAgenticAI.Agents.Browser/         # 🌐 浏览器Agent (生成 BrowserAgent.exe)
+│   │   ├── Lorn.OpenAgenticAI.Agents.Email/           # 📧 邮件Agent (生成 EmailAgent.exe)
+│   │   ├── Lorn.OpenAgenticAI.Agents.File/            # 📁 文件Agent (生成 FileAgent.exe)
 │   │   └── Lorn.OpenAgenticAI.Agents.SDK/             # Agent开发SDK
 │   │
 │   └── 6.Shared/                        # 共享组件
@@ -408,6 +430,53 @@ Lorn.OpenAgenticAI.sln
     ├── build.ps1                     # 构建脚本
     ├── test.ps1                      # 测试脚本
     └── deploy.ps1                    # 部署脚本
+```
+
+#### 可执行文件说明
+
+**主要可执行文件**:
+
+- **Lorn.OpenAgenticAI.exe** (主入口点)
+  - 项目: `Lorn.OpenAgenticAI.Host`
+  - 类型: .NET MAUI 应用程序
+  - 功能: 程序启动、依赖注入配置、界面宿主
+  - 启动方式: 用户双击启动的主程序
+
+- **Lorn.OpenAgenticAI.Service.exe** (后台服务)
+  - 项目: `Lorn.OpenAgenticAI.Service`
+  - 类型: .NET 控制台应用程序 / Windows 服务
+  - 功能: Director引擎、工作流引擎、MCP协议服务
+  - 启动方式: 由主程序自动启动或作为Windows服务运行
+
+**Agent可执行文件**:
+
+- **WordAgent.exe** - Word文档处理Agent
+- **ExcelAgent.exe** - Excel数据处理Agent  
+- **PowerPointAgent.exe** - PowerPoint演示文稿Agent
+- **BrowserAgent.exe** - 浏览器自动化Agent
+- **EmailAgent.exe** - 邮件处理Agent
+- **FileAgent.exe** - 文件操作Agent
+
+**部署结构**:
+```text
+安装目录/
+├── Lorn.OpenAgenticAI.exe          # 🚀 主程序入口
+├── Lorn.OpenAgenticAI.Service.exe  # 后台服务
+├── agents/                         # Agent可执行文件目录
+│   ├── WordAgent.exe
+│   ├── ExcelAgent.exe
+│   ├── PowerPointAgent.exe
+│   ├── BrowserAgent.exe
+│   ├── EmailAgent.exe
+│   └── FileAgent.exe
+├── data/                           # 数据目录
+│   ├── database.db                 # SQLite数据库
+│   └── knowledge.db                # LiteDB知识库
+├── config/                         # 配置目录
+│   ├── appsettings.json
+│   └── agents.json
+└── logs/                           # 日志目录
+    └── app.log
 ```
 
 ### 5.2 项目依赖关系
@@ -470,19 +539,41 @@ graph TB
 
 ### 5.3 核心项目详细说明
 
+#### 5.3.0 宿主层项目
+
+**Lorn.OpenAgenticAI.Host** 🚀 (主入口点)
+- 项目类型: .NET MAUI App
+- 输出类型: 可执行文件 (Lorn.OpenAgenticAI.exe)
+- 目标平台: Windows, macOS
+- 主要功能: 程序启动、依赖注入配置、界面宿主、系统启动管理
+- 关键依赖: Lorn.OpenAgenticAI.UI.MAUI, Lorn.Application.Director
+- 启动职责: 负责启动后台服务进程和Agent进程池
+
 #### 5.3.1 表示层项目
 
-**Lorn.OpenAgenticAI.MAUI**
-- 项目类型: .NET MAUI App
+**Lorn.OpenAgenticAI.UI.MAUI** 📱 (界面类库)
+- 项目类型: .NET MAUI Class Library
+- 输出类型: 类库 (DLL)
 - 目标平台: Windows, macOS
-- 主要功能: 用户界面、智能对话、工作流设计器
+- 主要功能: 用户界面、智能对话、工作流设计器、界面逻辑
 - 关键依赖: Lorn.Application.Director, CommunityToolkit.Maui
+- 职责范围: 专注于界面展现和用户交互逻辑
 
-**Lorn.OpenAgenticAI.Web**
-- 项目类型: ASP.NET Core Web App
+**Lorn.OpenAgenticAI.Service** 🔧 (后台服务)
+- 项目类型: .NET Console App / Windows Service
+- 输出类型: 可执行文件 (Lorn.OpenAgenticAI.Service.exe)
 - 目标框架: .NET 9
-- 主要功能: Agent管理、系统监控、配置管理
+- 主要功能: Director引擎、工作流引擎、MCP协议服务、知识库服务
+- 关键依赖: Lorn.Application.Director, Lorn.Domain.MCP, Elsa.Workflows
+- 运行模式: 可作为控制台应用或Windows服务运行
+
+**Lorn.OpenAgenticAI.Web** 🌐 (可选组件)
+- 项目类型: ASP.NET Core Web App
+- 输出类型: Web应用程序
+- 目标框架: .NET 9
+- 主要功能: Agent管理、系统监控、配置管理、远程管理界面
 - 关键依赖: Lorn.Application.Agent, Microsoft.AspNetCore
+- 部署方式: 可选择性部署，用于远程管理和监控
 
 #### 5.3.2 应用层项目
 
@@ -572,13 +663,17 @@ graph TB
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
 │  ┌─────────────────┐    ┌─────────────────────────┐ │
-│  │   主应用进程    │    │    后台服务进程         │ │
-│  │                 │    │                         │ │
-│  │ • MAUI界面      │    │ • Director引擎          │ │
-│  │ • 用户交互      │    │ • 工作流引擎            │ │
-│  │ • 本地配置      │    │ • MCP协议服务           │ │
-│  └─────────────────┘    │ • 知识库服务            │ │
-│           │              └─────────────────────────┘ │
+│  │🚀 主应用进程     │    │🔧 后台服务进程          │ │
+│  │(用户入口点)      │    │                         │ │
+│  │                 │    │ • Director引擎          │ │
+│  │ • MAUI界面      │    │ • 工作流引擎            │ │
+│  │ • 用户交互      │    │ • MCP协议服务           │ │
+│  │ • 进程管理      │    │ • 知识库服务            │ │
+│  │ • 本地配置      │    │                         │ │
+│  │                 │    │ Lorn.OpenAgenticAI.     │ │
+│  │ Lorn.OpenAgenticAI. │ Service.exe              │ │
+│  │ exe             │    │                         │ │
+│  └─────────────────┘    └─────────────────────────┘ │
 │           │                           │               │
 │           └───────────────────────────┘               │
 │                    IPC通信                            │
@@ -587,7 +682,12 @@ graph TB
 │  │                Agent进程池                      │ │
 │  │                                                 │ │
 │  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │ │
-│  │ │Office Agents│ │Browser Agent│ │Email Agent  │ │ │
+│  │ │📄WordAgent  │ │📊ExcelAgent │ │📈PPTAgent   │ │ │
+│  │ │.exe         │ │.exe         │ │.exe         │ │ │
+│  │ └─────────────┘ └─────────────┘ └─────────────┘ │ │
+│  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │ │
+│  │ │🌐BrowserAgent│ │📧EmailAgent │ │📁FileAgent  │ │ │
+│  │ │.exe         │ │.exe         │ │.exe         │ │ │
 │  │ └─────────────┘ └─────────────┘ └─────────────┘ │ │
 │  └─────────────────────────────────────────────────┘ │
 │                           │                           │
@@ -602,6 +702,13 @@ graph TB
 │  │ • 日志文件                                      │ │
 │  └─────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
+
+启动流程:
+1. 用户双击 Lorn.OpenAgenticAI.exe (主入口点)
+2. 主进程启动 MAUI 用户界面
+3. 主进程检查并启动后台服务进程
+4. 服务进程根据需要启动各个 Agent 进程
+5. 建立进程间通信，系统就绪
 ```
 
 ### 6.2 企业部署模式
