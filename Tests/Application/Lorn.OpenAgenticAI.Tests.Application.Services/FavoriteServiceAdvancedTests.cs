@@ -67,10 +67,10 @@ public class FavoriteServiceAdvancedTests
         _favoriteRepo.Setup(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         var addResult = await _service.ToggleFavoriteAsync(_userId, toggleReq);
         Assert.True(addResult.Success);
-        Assert.True(addResult.IsFavorited);
+        Assert.True(addResult.IsNowFavorited);
         var removeResult = await _service.ToggleFavoriteAsync(_userId, toggleReq);
         Assert.True(removeResult.Success);
-        Assert.False(removeResult.IsFavorited);
+        Assert.False(removeResult.IsNowFavorited);
     }
 
     [Fact]

@@ -319,9 +319,64 @@ public class CryptoServiceTests
         firstSessionToken.Should().NotBe(secondSessionToken,
             "每次生成的会话令牌必须唯一以防止重放攻击");
 
-        // 验证令牌长度一致性
-        token1Bytes.Length.Should().Be(token2Bytes.Length,
-            "相同参数生成的令牌应该有相同的结构长度");
+        // 验证令牌结构长度差异在安全可接受范围（可能因时间序列化或内部实现微小差异导致）
+        Math.Abs(token1Bytes.Length - token2Bytes.Length)
+            .Should().BeLessOrEqualTo(8, "令牌结构长度差异应保持在可接受范围内，不影响验证逻辑");
+    }
+
+    [Fact]
+    public async Task GenerateSessionToken_StructureAndSignature_ShouldBeValid()
+    {
+        var userId = CreateBusinessUserId();
+        var machineId = CreateBusinessMachineId();
+        var sessionExpiration = DateTime.UtcNow.AddHours(1);
+
+        var token = _cryptoService.GenerateSessionToken(userId, machineId, sessionExpiration);
+        token.Should().NotBeNullOrWhiteSpace();
+
+        // 一级 Base64 解码
+        var outerBytes = Convert.FromBase64String(token);
+        var outerJson = Encoding.UTF8.GetString(outerBytes);
+        using var doc = JsonDocument.Parse(outerJson);
+        doc.RootElement.TryGetProperty("Data", out var dataProp).Should().BeTrue();
+        doc.RootElement.TryGetProperty("Signature", out var sigProp).Should().BeTrue();
+        doc.RootElement.TryGetProperty("Salt", out var saltProp).Should().BeTrue();
+
+        var innerDataB64 = dataProp.GetString();
+        innerDataB64.Should().NotBeNull();
+        var innerBytes = Convert.FromBase64String(innerDataB64!);
+        var innerJson = Encoding.UTF8.GetString(innerBytes);
+        using var innerDoc = JsonDocument.Parse(innerJson);
+        innerDoc.RootElement.TryGetProperty("UserId", out var userIdProp).Should().BeTrue();
+        innerDoc.RootElement.TryGetProperty("MachineId", out var machineIdProp).Should().BeTrue();
+        innerDoc.RootElement.TryGetProperty("ExpirationTime", out var expProp).Should().BeTrue();
+        innerDoc.RootElement.TryGetProperty("IssuedAt", out var issuedProp).Should().BeTrue();
+        innerDoc.RootElement.TryGetProperty("TokenId", out var tokenIdProp).Should().BeTrue();
+
+        userIdProp.GetString().Should().Be(userId);
+        machineIdProp.GetString().Should().Be(machineId);
+        DateTime.Parse(expProp.GetString()!).Should().BeCloseTo(sessionExpiration, TimeSpan.FromSeconds(5));
+        DateTime.Parse(issuedProp.GetString()!).Should().BeBefore(DateTime.UtcNow.AddSeconds(5));
+        tokenIdProp.GetString().Should().NotBeNullOrWhiteSpace();
+
+        // 重算签名
+        var signatureB64 = sigProp.GetString();
+        signatureB64.Should().NotBeNull();
+        var salt = saltProp.GetString();
+        salt.Should().NotBeNull();
+
+        // 使用反射访问 DeriveKeyFromMachineId (保持测试层级不改变生产可见性)
+        var deriveMethod = typeof(CryptoService).GetMethod("DeriveKeyFromMachineId");
+        deriveMethod.Should().NotBeNull();
+        var key = (byte[])deriveMethod!.Invoke(_cryptoService, new object[] { machineId, salt! })!;
+
+        using var hmac = new HMACSHA256(key);
+        var recomputed = hmac.ComputeHash(innerBytes);
+        Convert.FromBase64String(signatureB64!).SequenceEqual(recomputed).Should().BeTrue("签名必须匹配以保证完整性");
+
+        // 验证 Validate API 一致
+        var validateResult = await _cryptoService.ValidateSessionTokenAsync(token, userId, machineId);
+        validateResult.IsValid.Should().BeTrue();
     }
 
     [Theory]

@@ -52,9 +52,9 @@ public class ShortcutServiceAdvancedTests
         _shortcutRepo.Setup(r => r.CheckKeyCombinationConflictAsync(_userId, It.IsAny<string>(), null, It.IsAny<CancellationToken>())).ReturnsAsync((UserShortcut?)null); // for suggestion generation
         var result = await _service.CreateShortcutAsync(_userId, request);
         Assert.False(result.Success);
-        Assert.NotNull(result.ConflictResult);
-        Assert.True(result.ConflictResult!.HasConflict);
-        Assert.NotEmpty(result.ConflictResult.Suggestions);
+        Assert.NotNull(result.ConflictInfo);
+        Assert.True(result.ConflictInfo!.HasConflict);
+        Assert.NotEmpty(result.ConflictInfo.SuggestedAlternatives);
     }
 
     [Fact]

@@ -18,4 +18,10 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Lorn.OpenAgenticAI.Tests.Application.Services</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

@@ -233,12 +233,14 @@ public class PreferenceServiceTests
                       .ReturnsAsync(new UserPreferences(_testUserId, category, key, value, "String"));
 
         // Act
-        var _ = _service.SetPreferenceAsync(_testUserId, category, key, value);
+        // Act
+        var task = _service.SetPreferenceAsync(_testUserId, category, key, value);
+        task.GetAwaiter().GetResult();
 
-        // Assert
+        // Assert (after awaiting to ensure event fired)
         Assert.True(eventTriggered);
         Assert.NotNull(capturedEventArgs);
-        Assert.Equal(_testUserId, capturedEventArgs.UserId);
+        Assert.Equal(_testUserId, capturedEventArgs!.UserId);
         Assert.Equal(category, capturedEventArgs.Category);
         Assert.Equal(key, capturedEventArgs.Key);
         Assert.Equal(value, capturedEventArgs.NewValue);

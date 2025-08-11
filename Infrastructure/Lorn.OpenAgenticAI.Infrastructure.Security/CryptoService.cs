@@ -159,7 +159,7 @@ public class CryptoService : ICryptoService
             {
                 UserId = userId,
                 MachineId = machineId,
-                ExpirationTime = expirationTime,
+                ExpirationTime = expirationTime.ToUniversalTime(),
                 IssuedAt = DateTime.UtcNow,
                 TokenId = Guid.NewGuid().ToString()
             };
