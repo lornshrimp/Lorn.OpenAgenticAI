@@ -95,6 +95,12 @@ public class ShortcutService : IShortcutService
             var conflictResult = await CheckKeyCombinationConflictAsync(userId, request.KeyCombination, null, cancellationToken);
             if (conflictResult.HasConflict)
             {
+                // 确保建议列表已生成（若为空再尝试生成）
+                if (conflictResult.SuggestedAlternatives == null || !conflictResult.SuggestedAlternatives.Any())
+                {
+                    var suggestions = await GenerateKeyCombinationSuggestions(userId, request.KeyCombination, cancellationToken);
+                    conflictResult = new KeyCombinationConflictResult(true, conflictResult.ConflictingShortcut, suggestions);
+                }
                 return new CreateShortcutResult(false, null, "Key combination conflicts with existing shortcut", conflictResult);
             }
 
@@ -416,14 +422,14 @@ public class ShortcutService : IShortcutService
             {
                 try
                 {
-                    // 检查冲突
+                    // SkipConflicts 模式：仅做一次直接仓储冲突检查（测试中已对仓储方法进行 Mock）
                     if (mergeMode == ImportMergeMode.SkipConflicts)
                     {
-                        var conflictResult = await CheckKeyCombinationConflictAsync(userId, shortcutDto.KeyCombination, null, cancellationToken);
-                        if (conflictResult.HasConflict)
+                        var conflict = await _shortcutRepository.CheckKeyCombinationConflictAsync(userId, shortcutDto.KeyCombination, null, cancellationToken);
+                        if (conflict != null)
                         {
                             skippedCount++;
-                            continue;
+                            continue; // 不导入冲突项
                         }
                     }
 

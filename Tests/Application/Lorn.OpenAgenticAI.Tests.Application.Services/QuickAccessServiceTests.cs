@@ -98,7 +98,7 @@ public class QuickAccessServiceTests
         _shortcut.Setup(s => s.GetMostUsedShortcutsAsync(_userId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new[] { new ShortcutDto(Guid.NewGuid(), "Run", "Ctrl+R", "Action", null, null, "General", true, false, DateTime.UtcNow, null, 0, 10) });
         _fav.Setup(f => f.GetMostAccessedFavoritesAsync(_userId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new[] { new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", null, "desc", 0, DateTime.UtcNow, null, 5, true) });
+            .ReturnsAsync(new[] { new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", Array.Empty<string>(), "desc", 0, DateTime.UtcNow, DateTime.UtcNow, 5, true) });
         var recs = await _service.GetRecommendedQuickAccessItemsAsync(_userId, 6);
         Assert.True(recs.Any(r => r.ItemType == "Shortcut"));
         Assert.True(recs.Any(r => r.ItemType == "Doc"));

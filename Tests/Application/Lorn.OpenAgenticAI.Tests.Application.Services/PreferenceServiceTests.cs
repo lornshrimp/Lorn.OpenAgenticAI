@@ -6,6 +6,7 @@ using Lorn.OpenAgenticAI.Application.Services.Extensions;
 using Lorn.OpenAgenticAI.Application.Services.Constants;
 using Lorn.OpenAgenticAI.Domain.Contracts;
 using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
+using Lorn.OpenAgenticAI.Application.Services.Interfaces;
 
 namespace Lorn.OpenAgenticAI.Tests.Application.Services;
 
@@ -209,7 +210,7 @@ public class PreferenceServiceTests
     }
 
     [Fact]
-    public void PreferenceChanged_Event_IsTriggered_OnSetPreference()
+    public async Task PreferenceChanged_Event_IsTriggered_OnSetPreference()
     {
         // Arrange
         var eventTriggered = false;
@@ -233,9 +234,7 @@ public class PreferenceServiceTests
                       .ReturnsAsync(new UserPreferences(_testUserId, category, key, value, "String"));
 
         // Act
-        // Act
-        var task = _service.SetPreferenceAsync(_testUserId, category, key, value);
-        task.GetAwaiter().GetResult();
+        await _service.SetPreferenceAsync(_testUserId, category, key, value);
 
         // Assert (after awaiting to ensure event fired)
         Assert.True(eventTriggered);

@@ -146,6 +146,10 @@ public class UserShortcut
         if (string.IsNullOrWhiteSpace(actionType))
             throw new ArgumentException("Action type cannot be empty", nameof(actionType));
 
+        // 容错：部分导入/测试数据可能提供 null 的 actionData 或 category，这里统一归一化为空字符串
+        actionData ??= string.Empty;
+        category ??= string.Empty;
+
         Id = Guid.NewGuid();
         UserId = userId;
         Name = name.Trim();

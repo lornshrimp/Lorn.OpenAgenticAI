@@ -23,7 +23,9 @@ public class FavoriteServiceAdvancedTests
 
     public FavoriteServiceAdvancedTests()
     {
-        _userRepo.Setup(r => r.GetByIdAsync(_userId, It.IsAny<CancellationToken>()));
+        // 默认返回一个用户配置，避免后续测试遗漏 Setup 导致 null
+        _userRepo.Setup(r => r.GetByIdAsync(_userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UserProfile("default", "user"));
         _service = new FavoriteService(_favoriteRepo.Object, _userRepo.Object, _logger.Object);
     }
 
@@ -59,9 +61,16 @@ public class FavoriteServiceAdvancedTests
     public async Task ToggleFavorite_AddThenRemove_Works()
     {
         var toggleReq = new ToggleFavoriteRequest("Doc", "1", "Spec", "Docs", null, null);
+        // 第一次 Toggle：
+        //   ToggleFavoriteAsync -> GetByUserItemAsync (null) 触发 AddFavoriteAsync
+        //   AddFavoriteAsync 内部再次调用 GetByUserItemAsync (仍需返回 null)
+        // 第二次 Toggle：
+        //   ToggleFavoriteAsync -> GetByUserItemAsync (返回已存在 Favorited 实例) 触发删除
+        var existing = NewFavorite(_userId, toggleReq.ItemType, toggleReq.ItemId, toggleReq.ItemName);
         _favoriteRepo.SetupSequence(r => r.GetByUserItemAsync(_userId, toggleReq.ItemType, toggleReq.ItemId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((UserFavorite?)null) // first call add
-            .ReturnsAsync(NewFavorite(_userId, toggleReq.ItemType, toggleReq.ItemId, toggleReq.ItemName)); // second call remove
+            .ReturnsAsync((UserFavorite?)null) // Toggle 外层第一次判定
+            .ReturnsAsync((UserFavorite?)null) // AddFavoriteAsync 内部再次判定
+            .ReturnsAsync(existing);           // 第二次 Toggle 外层判定已存在
         _userRepo.Setup(r => r.GetByIdAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile("u", "n"));
         _favoriteRepo.Setup(r => r.AddAsync(It.IsAny<UserFavorite>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _favoriteRepo.Setup(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
@@ -118,9 +127,9 @@ public class FavoriteServiceAdvancedTests
     [Fact]
     public async Task ImportFavoriteConfiguration_SkipExisting_Skips()
     {
-        var dto = new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", new[] { "t" }, "desc", 0, DateTime.UtcNow, null, 0, true);
+        var dto = new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", new[] { "t" }, "desc", 0, DateTime.UtcNow, DateTime.UtcNow, 0, true);
         var export = new FavoriteConfigurationExport(_userId, DateTime.UtcNow, new[] { dto });
-        _favoriteRepo.Setup(r => r.DeleteByUserIdAsync(_userId, It.IsAny<CancellationToken>()));
+        _favoriteRepo.Setup(r => r.DeleteByUserIdAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _favoriteRepo.Setup(r => r.IsItemFavoritedAsync(_userId, dto.ItemType, dto.ItemId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
         var result = await _service.ImportFavoriteConfigurationAsync(_userId, export, ImportMergeMode.SkipConflicts);
         Assert.Equal(0, result.ImportedCount);
@@ -130,9 +139,9 @@ public class FavoriteServiceAdvancedTests
     [Fact]
     public async Task ImportFavoriteConfiguration_Replace_Imports()
     {
-        var dto = new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", null, null, 0, DateTime.UtcNow, null, 0, true);
+        var dto = new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", Array.Empty<string>(), null, 0, DateTime.UtcNow, DateTime.UtcNow, 0, true);
         var export = new FavoriteConfigurationExport(_userId, DateTime.UtcNow, new[] { dto });
-        _favoriteRepo.Setup(r => r.DeleteByUserIdAsync(_userId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _favoriteRepo.Setup(r => r.DeleteByUserIdAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _favoriteRepo.Setup(r => r.IsItemFavoritedAsync(_userId, dto.ItemType, dto.ItemId, It.IsAny<CancellationToken>())).ReturnsAsync(false);
         _userRepo.Setup(r => r.GetByIdAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(new UserProfile("u", "n"));
         _favoriteRepo.Setup(r => r.GetByUserItemAsync(_userId, dto.ItemType, dto.ItemId, It.IsAny<CancellationToken>())).ReturnsAsync((UserFavorite?)null);
