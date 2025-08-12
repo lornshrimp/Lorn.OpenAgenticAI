@@ -155,16 +155,25 @@ public class CryptoService : ICryptoService
 
         try
         {
-            var tokenData = new SessionTokenData
+            // 统一使用UTC并采用不可歧义的ISO8601 "O" 格式持久化时间，避免在不同区域/本地设置下被反序列化为本地时间导致测试偏移(+8h等)
+            var utcExpiration = DateTime.SpecifyKind(expirationTime.ToUniversalTime(), DateTimeKind.Utc);
+            var utcIssuedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+
+            var tokenData = new SessionTokenDataInternal
             {
                 UserId = userId,
                 MachineId = machineId,
-                ExpirationTime = expirationTime.ToUniversalTime(),
-                IssuedAt = DateTime.UtcNow,
+                // 强制使用自定义UTC格式，始终包含'Z'
+                ExpirationTime = utcExpiration.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"),
+                IssuedAt = utcIssuedAt.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"),
                 TokenId = Guid.NewGuid().ToString()
             };
 
-            var jsonData = JsonSerializer.Serialize(tokenData);
+            var jsonData = JsonSerializer.Serialize(tokenData, new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            });
+            _logger.LogDebug("Session token raw data JSON: {Json}", jsonData);
             var tokenBytes = Encoding.UTF8.GetBytes(jsonData);
 
             // 使用HMAC-SHA256签名
@@ -244,7 +253,7 @@ public class CryptoService : ICryptoService
 
             // 解析令牌数据
             var dataJson = Encoding.UTF8.GetString(dataBytes);
-            var tokenData = JsonSerializer.Deserialize<SessionTokenData>(dataJson);
+            var tokenData = JsonSerializer.Deserialize<SessionTokenDataInternal>(dataJson);
 
             if (tokenData == null)
             {
@@ -268,7 +277,18 @@ public class CryptoService : ICryptoService
             }
 
             // 检查过期时间
-            var isExpired = DateTime.UtcNow > tokenData.ExpirationTime;
+            // 解析时间（始终按UTC处理）
+            DateTime expirationUtc;
+            if (!DateTime.TryParse(tokenData.ExpirationTime, null, System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out expirationUtc))
+            {
+                _logger.LogWarning("会话令牌过期时间解析失败");
+                return Task.FromResult(new SessionTokenValidationResult
+                {
+                    IsValid = false,
+                    FailureReason = "令牌过期时间无效"
+                });
+            }
+            var isExpired = DateTime.UtcNow > expirationUtc;
 
             var result = new SessionTokenValidationResult
             {
@@ -276,7 +296,7 @@ public class CryptoService : ICryptoService
                 IsExpired = isExpired,
                 UserId = tokenData.UserId,
                 MachineId = tokenData.MachineId,
-                ExpirationTime = tokenData.ExpirationTime,
+                ExpirationTime = expirationUtc,
                 FailureReason = isExpired ? "令牌已过期" : null
             };
 
@@ -405,12 +425,13 @@ public class CryptoService : ICryptoService
     /// <summary>
     /// 会话令牌数据结构
     /// </summary>
-    private class SessionTokenData
+    // 内部序列化模型（使用字符串存储不可歧义UTC时间）
+    private class SessionTokenDataInternal
     {
         public string UserId { get; set; } = string.Empty;
         public string MachineId { get; set; } = string.Empty;
-        public DateTime ExpirationTime { get; set; }
-        public DateTime IssuedAt { get; set; }
+        public string ExpirationTime { get; set; } = string.Empty; // ISO8601 UTC
+        public string IssuedAt { get; set; } = string.Empty;       // ISO8601 UTC
         public string TokenId { get; set; } = string.Empty;
     }
 
