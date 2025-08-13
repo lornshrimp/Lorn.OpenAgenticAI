@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lorn.OpenAgenticAI.Domain.Models\Lorn.OpenAgenticAI.Domain.Models.csproj" />
+  <ProjectReference Include="..\..\Shared\Lorn.OpenAgenticAI.Shared.Contracts\Lorn.OpenAgenticAI.Shared.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

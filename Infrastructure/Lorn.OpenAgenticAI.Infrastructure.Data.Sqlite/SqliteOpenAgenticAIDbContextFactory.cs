@@ -23,7 +23,7 @@ public class SqliteOpenAgenticAIDbContextFactory : IDesignTimeDbContextFactory<S
             .Build();
 
         // 配置 DbContext 选项
-        var optionsBuilder = new DbContextOptionsBuilder<OpenAgenticAIDbContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<SqliteOpenAgenticAIDbContext>();
 
         // 获取连接字符串，如果没有配置则使用默认的内存数据库
         var connectionString = configuration.GetConnectionString("DefaultConnection")

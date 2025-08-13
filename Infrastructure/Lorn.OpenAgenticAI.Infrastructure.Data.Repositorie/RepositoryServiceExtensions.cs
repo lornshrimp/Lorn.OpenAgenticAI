@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Lorn.OpenAgenticAI.Domain.Contracts;
+using Lorn.OpenAgenticAI.Domain.Contracts.Repositories;
 
 namespace Lorn.OpenAgenticAI.Infrastructure.Data.Repositorie;
 
@@ -27,6 +28,18 @@ public static class RepositoryServiceExtensions
         // 注册用户安全日志仓储
         services.AddScoped<IUserSecurityLogRepository, UserSecurityLogRepository>();
 
+        // 新增：领域用户档案仓储（EF实现）
+        services.AddScoped<IUserProfileRepository, UserProfileRepositoryEF>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// 注册任务执行相关仓储
+    /// </summary>
+    public static IServiceCollection AddExecutionRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<ITaskExecutionRepository, TaskExecutionRepository>();
         return services;
     }
 
@@ -39,6 +52,9 @@ public static class RepositoryServiceExtensions
     {
         // 注册用户管理相关仓储
         services.AddUserRepositories();
+
+        // 注册任务执行相关仓储
+        services.AddExecutionRepositories();
 
         // TODO: 在后续任务中添加其他仓储的注册
         // services.AddWorkflowRepositories();

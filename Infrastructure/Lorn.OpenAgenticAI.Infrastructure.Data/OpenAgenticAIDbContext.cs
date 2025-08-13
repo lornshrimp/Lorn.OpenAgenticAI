@@ -33,6 +33,7 @@ public abstract class OpenAgenticAIDbContext : DbContext
 
     // 任务执行相关
     public DbSet<TaskExecutionHistory> TaskExecutionHistories { get; set; } = null!;
+    public DbSet<ExecutionStepRecord> ExecutionStepRecords { get; set; } = null!;
     public DbSet<StepExecutionTimeEntry> StepExecutionTimeEntries { get; set; } = null!;
     public DbSet<ResourceUtilizationEntry> ResourceUtilizationEntries { get; set; } = null!;
 
@@ -100,7 +101,6 @@ public abstract class OpenAgenticAIDbContext : DbContext
         modelBuilder.Ignore<QualitySettings>();
 
         // 忽略非实体类型（不实现IAggregateRoot或IEntity的类）
-        modelBuilder.Ignore<ExecutionStepRecord>();
         modelBuilder.Ignore<ProviderType>();
         modelBuilder.Ignore<ConfigurationTemplate>();
         modelBuilder.Ignore<ErrorEventRecord>();
@@ -137,6 +137,10 @@ public abstract class OpenAgenticAIDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100).IsRequired();
             entity.HasIndex(e => e.Username).IsUnique();
             entity.HasIndex(e => e.Email).IsUnique();
+            // 使用 ProfileVersion 作为乐观并发控制字段
+            // 领域层在业务变更时调用 IncrementVersion() 主动递增版本
+            // EF 在更新时将 ProfileVersion 作为并发检查条件，发生冲突将抛出 DbUpdateConcurrencyException
+            entity.Property(e => e.ProfileVersion).IsConcurrencyToken();
         });
 
         // UserMetadataEntry 配置
@@ -261,6 +265,23 @@ public abstract class OpenAgenticAIDbContext : DbContext
             // ExecutionStatus会在特定数据库配置中处理
         });
 
+        // ExecutionStepRecord 配置（跨数据库通用）
+        modelBuilder.Entity<ExecutionStepRecord>(entity =>
+        {
+            entity.HasKey(e => e.StepRecordId);
+
+            entity.Property(e => e.StepId).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.StepDescription).HasMaxLength(500);
+            entity.Property(e => e.AgentId).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.ActionName).HasMaxLength(100).IsRequired();
+            // 关系型数据库专属列类型在具体提供程序中配置
+            // 在抽象层保留逻辑长度与必填规则
+            entity.Property(e => e.ErrorMessage).HasMaxLength(1000);
+
+            // 值对象 ResourceUsage 作为拥有类型，具体列映射由具体数据库提供程序配置
+            entity.OwnsOne(e => e.ResourceUsage);
+        });
+
         // WorkflowTemplate 配置
         modelBuilder.Entity<WorkflowTemplate>(entity =>
         {
@@ -349,6 +370,13 @@ public abstract class OpenAgenticAIDbContext : DbContext
             .HasForeignKey(e => e.ConfigurationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // TaskExecutionHistory -> ExecutionStepRecord (一对多)
+        modelBuilder.Entity<ExecutionStepRecord>()
+            .HasOne(e => e.Execution)
+            .WithMany(h => h.ExecutionSteps)
+            .HasForeignKey(e => e.ExecutionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // PerformanceMetricsRecord -> MetricTagEntries (一对多)
         modelBuilder.Entity<MetricTagEntry>()
             .HasOne(e => e.Metric)
@@ -379,6 +407,17 @@ public abstract class OpenAgenticAIDbContext : DbContext
         // 性能优化索引
         modelBuilder.Entity<TaskExecutionHistory>()
             .HasIndex(e => new { e.UserId, e.StartTime, e.ExecutionStatus });
+
+        // ExecutionStepRecord 常用索引与唯一约束
+        modelBuilder.Entity<ExecutionStepRecord>()
+            .HasIndex(e => new { e.ExecutionId, e.StepOrder })
+            .IsUnique();
+
+        modelBuilder.Entity<ExecutionStepRecord>()
+            .HasIndex(e => new { e.AgentId, e.ActionName, e.StartTime });
+
+        modelBuilder.Entity<ExecutionStepRecord>()
+            .HasIndex(e => new { e.StepStatus, e.StartTime });
 
         modelBuilder.Entity<PerformanceMetricsRecord>()
             .HasIndex(e => new { e.MetricType, e.MetricName, e.MetricTimestamp });

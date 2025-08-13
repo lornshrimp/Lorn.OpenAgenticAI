@@ -9,7 +9,7 @@ namespace Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite;
 /// </summary>
 public class SqliteOpenAgenticAIDbContext : OpenAgenticAIDbContext
 {
-    public SqliteOpenAgenticAIDbContext(DbContextOptions<OpenAgenticAIDbContext> options)
+    public SqliteOpenAgenticAIDbContext(DbContextOptions<SqliteOpenAgenticAIDbContext> options)
         : base(options)
     {
     }
@@ -52,6 +52,8 @@ public class SqliteOpenAgenticAIDbContext : OpenAgenticAIDbContext
         modelBuilder.ApplyConfiguration(new SqliteModelProviderConfiguration());
         modelBuilder.ApplyConfiguration(new SqliteModelConfiguration());
         modelBuilder.ApplyConfiguration(new SqliteTaskExecutionHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new SqliteUserPreferencesConfiguration());
+        modelBuilder.ApplyConfiguration(new SqliteExecutionStepRecordConfiguration());
         modelBuilder.ApplyConfiguration(new SqliteWorkflowTemplateConfiguration());
         modelBuilder.ApplyConfiguration(new SqliteMCPConfigurationConfiguration());
     }
@@ -101,7 +103,16 @@ public class SqliteOpenAgenticAIDbContext : OpenAgenticAIDbContext
         foreach (var relationship in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys()))
         {
-            relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            // 默认限制级联删除，但对 ExecutionStepRecord -> TaskExecutionHistory 允许级联
+            if (relationship.PrincipalEntityType.ClrType == typeof(Lorn.OpenAgenticAI.Domain.Models.Execution.TaskExecutionHistory)
+                && relationship.DeclaringEntityType.ClrType == typeof(Lorn.OpenAgenticAI.Domain.Models.Execution.ExecutionStepRecord))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Cascade;
+            }
+            else
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
         }
     }
 }
