@@ -28,6 +28,10 @@
     <ProjectReference Include="..\Lorn.OpenAgenticAI.Infrastructure.Data\Lorn.OpenAgenticAI.Infrastructure.Data.csproj" />
     <!-- 引用领域模型项目 -->
     <ProjectReference Include="..\..\Domain\Lorn.OpenAgenticAI.Domain.Models\Lorn.OpenAgenticAI.Domain.Models.csproj" />
+    <!-- 引用领域契约项目 -->
+    <ProjectReference Include="..\..\Domain\Lorn.OpenAgenticAI.Domain.Contracts\Lorn.OpenAgenticAI.Domain.Contracts.csproj" />
+    <!-- 引用共享契约项目 -->
+    <ProjectReference Include="..\..\Shared\Lorn.OpenAgenticAI.Shared.Contracts\Lorn.OpenAgenticAI.Shared.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

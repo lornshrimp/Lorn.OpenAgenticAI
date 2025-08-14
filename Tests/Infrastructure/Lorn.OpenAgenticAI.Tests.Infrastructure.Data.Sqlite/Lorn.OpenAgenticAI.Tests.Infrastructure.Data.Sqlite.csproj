@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 测试框架 -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.3.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
+    
+    <!-- Mocking 框架 -->
+    <PackageReference Include="Moq" Version="4.20.72" />
+    
+    <!-- Entity Framework Core In-Memory Database -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+    
+    <!-- Microsoft Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 项目引用 -->
+    <ProjectReference Include="..\..\..\Infrastructure\Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite\Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Lorn.OpenAgenticAI.Infrastructure.Data\Lorn.OpenAgenticAI.Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Lorn.OpenAgenticAI.Shared.Contracts\Lorn.OpenAgenticAI.Shared.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Domain\Lorn.OpenAgenticAI.Domain.Models\Lorn.OpenAgenticAI.Domain.Models.csproj" />
+    <ProjectReference Include="..\..\..\Domain\Lorn.OpenAgenticAI.Domain.Contracts\Lorn.OpenAgenticAI.Domain.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -30,8 +30,8 @@ public class SqliteOpenAgenticAIDbContext : OpenAgenticAIDbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        // SQLite特定的配置
-        if (optionsBuilder.IsConfigured)
+        // SQLite特定的配置 - 只有在还没有配置提供程序时才调用
+        if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseSqlite(options =>
             {

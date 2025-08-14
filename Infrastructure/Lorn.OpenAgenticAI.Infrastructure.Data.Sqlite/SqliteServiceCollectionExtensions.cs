@@ -3,6 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Lorn.OpenAgenticAI.Infrastructure.Data;
+using Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite.Migrations;
+using Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite.SeedData;
+using Lorn.OpenAgenticAI.Shared.Contracts.Database;
 
 namespace Lorn.OpenAgenticAI.Infrastructure.Data.Sqlite;
 
@@ -19,7 +22,7 @@ public static class SqliteServiceCollectionExtensions
     /// <param name="configureOptions">额外配置选项</param>
     /// <returns>服务集合</returns>
     public static IServiceCollection AddSqliteDatabase(
-        this IServiceCollection services, 
+        this IServiceCollection services,
         string connectionString,
         Action<DbContextOptionsBuilder>? configureOptions = null)
     {
@@ -48,6 +51,11 @@ public static class SqliteServiceCollectionExtensions
             configureOptions?.Invoke(options);
         });
 
+        // 注册数据库初始化相关服务
+        services.AddScoped<SqliteDatabaseMigrator>();
+        services.AddScoped<SqliteSeedDataService>();
+        services.AddScoped<IDatabaseInitializer, SqliteDatabaseInitializer>();
+
         return services;
     }
 
@@ -60,12 +68,12 @@ public static class SqliteServiceCollectionExtensions
     /// <param name="configureOptions">额外配置选项</param>
     /// <returns>服务集合</returns>
     public static IServiceCollection AddSqliteDatabase(
-        this IServiceCollection services, 
+        this IServiceCollection services,
         IConfiguration configuration,
         string connectionStringName = "DefaultConnection",
         Action<DbContextOptionsBuilder>? configureOptions = null)
     {
-        var connectionString = configuration.GetConnectionString(connectionStringName) ?? 
+        var connectionString = configuration.GetConnectionString(connectionStringName) ??
                               "Data Source=openagentai.db";
 
         return services.AddSqliteDatabase(connectionString, configureOptions);
@@ -84,14 +92,14 @@ public static class SqliteServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configureOptions = null)
     {
         var connectionString = $"Data Source={databaseName};Mode=Memory;Cache=Shared";
-        
+
         services.AddDbContext<OpenAgenticAIDbContext, SqliteOpenAgenticAIDbContext>(options =>
         {
             options.UseSqlite(connectionString);
             options.EnableSensitiveDataLogging(true);
             options.EnableDetailedErrors(true);
             options.LogTo(Console.WriteLine, LogLevel.Information);
-            
+
             configureOptions?.Invoke(options);
         });
 
@@ -131,14 +139,14 @@ public static class SqliteServiceCollectionExtensions
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<OpenAgenticAIDbContext>();
-        
+
         try
         {
             if (createDatabase)
             {
                 await context.Database.EnsureCreatedAsync();
             }
-            
+
             if (migrateDatabase && context.Database.GetPendingMigrations().Any())
             {
                 await context.Database.MigrateAsync();
