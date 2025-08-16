@@ -1,9 +1,17 @@
 using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 
+// --------------------------------------------------------------------------------------------------
+// Layer Responsibility Notes
+// IUserManagementService 处于应用服务/业务编排层：
+// * 负责：输入校验、唯一性检查、业务规则、合并/批量偏好、调用安全/操作日志记录、默认用户互斥逻辑。
+// * 不做：直接持久化细节（委托给 IUserDataService），运行期会话缓存（由 IUserContextService 维护）。
+// * 方向：UI / 工作流 -> IUserManagementService -> IUserDataService -> Repositories
+// --------------------------------------------------------------------------------------------------
+
 namespace Lorn.OpenAgenticAI.Application.Services.Interfaces;
 
 /// <summary>
-/// 用户管理服务接口，定义用户管理契约
+/// 用户管理服务接口，定义用户管理契约 (业务层) —— 依赖 IUserDataService 实现数据持久化。
 /// </summary>
 public interface IUserManagementService
 {
@@ -16,7 +24,15 @@ public interface IUserManagementService
     Task<UserProfileResult> GetUserProfileAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 更新用户档案信息
+    /// 创建新用户（包含输入验证、用户名/邮箱唯一性检查、初始化默认偏好等）
+    /// </summary>
+    /// <param name="request">创建用户请求</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>创建结果</returns>
+    Task<UserCreationResult> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 更新用户档案（支持局部字段更新 + 业务验证）
     /// </summary>
     /// <param name="userId">用户ID</param>
     /// <param name="request">更新请求</param>
@@ -25,24 +41,7 @@ public interface IUserManagementService
     Task<UserProfileUpdateResult> UpdateUserProfileAsync(Guid userId, UpdateUserProfileRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 创建新用户
-    /// </summary>
-    /// <param name="request">创建用户请求</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>创建结果</returns>
-    Task<UserCreationResult> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 删除用户
-    /// </summary>
-    /// <param name="userId">用户ID</param>
-    /// <param name="hardDelete">是否硬删除（true：物理删除，false：软删除）</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>删除结果</returns>
-    Task<UserDeletionResult> DeleteUserAsync(Guid userId, bool hardDelete = false, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 激活用户
+    /// 激活用户（可能触发安全日志、事件发布）
     /// </summary>
     /// <param name="userId">用户ID</param>
     /// <param name="cancellationToken">取消令牌</param>
@@ -58,7 +57,42 @@ public interface IUserManagementService
     Task<UserOperationResult> DeactivateUserAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 获取用户列表
+    /// 将指定用户设为默认用户（调度到数据层 SetDefaultUser 并处理原默认用户状态）
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>操作结果</returns>
+    Task<UserOperationResult> SetDefaultUserAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 修改用户名（包含合法性与唯一性检查）
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="newUsername">新用户名</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>验证结果</returns>
+    Task<UsernameValidationResult> ChangeUsernameAsync(Guid userId, string newUsername, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 修改邮箱地址（包含格式与唯一性检查）
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="newEmail">新邮箱地址</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>验证结果</returns>
+    Task<EmailValidationResult> ChangeEmailAsync(Guid userId, string newEmail, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 删除用户（区分软/硬删除，进行关联资源校验）
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="hardDelete">是否硬删除（true：物理删除，false：软删除）</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>删除结果</returns>
+    Task<UserDeletionResult> DeleteUserAsync(Guid userId, bool hardDelete = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 获取分页用户列表（含过滤/排序封装）
     /// </summary>
     /// <param name="request">查询请求</param>
     /// <param name="cancellationToken">取消令牌</param>
@@ -66,7 +100,7 @@ public interface IUserManagementService
     Task<UserListResult> GetUsersAsync(GetUsersRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 验证用户名是否可用
+    /// 验证用户名是否可用（包装数据层 Exists 查询 + 建议生成）
     /// </summary>
     /// <param name="username">用户名</param>
     /// <param name="excludeUserId">排除的用户ID（用于更新时检查）</param>
@@ -82,6 +116,15 @@ public interface IUserManagementService
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>验证结果</returns>
     Task<EmailValidationResult> ValidateEmailAsync(string email, Guid? excludeUserId = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 更新（合并式）用户偏好设置（高层批量 -> 拆分调用数据层 SaveUserPreferencesBatchAsync）
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="request">更新请求</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>操作结果</returns>
+    Task<UserOperationResult> UpdatePreferencesAsync(Guid userId, UpdatePreferencesRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// 获取用户操作历史
@@ -992,5 +1035,34 @@ public class ValidationResult
     public ValidationResult(List<string> errors)
     {
         Errors = errors ?? [];
+    }
+}
+
+/// <summary>
+/// 更新偏好设置请求（键值合并语义）
+/// </summary>
+public class UpdatePreferencesRequest
+{
+    /// <summary>
+    /// 偏好集合: category -> (key -> value)
+    /// </summary>
+    public Dictionary<string, Dictionary<string, object>> Preferences { get; set; } = new();
+
+    /// <summary>
+    /// 可选需要删除的项目: category -> keys (为空表示整个类别删除)
+    /// </summary>
+    public Dictionary<string, List<string>>? RemoveItems { get; set; }
+
+    /// <summary>
+    /// 验证
+    /// </summary>
+    public ValidationResult Validate()
+    {
+        var errors = new List<string>();
+        foreach (var cat in Preferences.Keys)
+        {
+            if (string.IsNullOrWhiteSpace(cat)) errors.Add("Category 不能为空");
+        }
+        return new ValidationResult(errors);
     }
 }

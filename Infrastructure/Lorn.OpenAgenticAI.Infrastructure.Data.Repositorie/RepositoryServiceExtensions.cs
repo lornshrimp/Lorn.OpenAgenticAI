@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Lorn.OpenAgenticAI.Domain.Contracts;
 using Lorn.OpenAgenticAI.Domain.Contracts.Repositories;
 
 namespace Lorn.OpenAgenticAI.Infrastructure.Data.Repositorie;
@@ -16,20 +15,8 @@ public static class RepositoryServiceExtensions
     /// <returns>服务集合</returns>
     public static IServiceCollection AddUserRepositories(this IServiceCollection services)
     {
-        // 注册用户仓储
-        services.AddScoped<IUserRepository, UserRepository>();
-
-        // 注册用户偏好设置仓储
-        services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
-
-        // 注册用户元数据仓储
-        services.AddScoped<IUserMetadataRepository, UserMetadataRepository>();
-
-        // 注册用户安全日志仓储
-        services.AddScoped<IUserSecurityLogRepository, UserSecurityLogRepository>();
-
-        // 新增：领域用户档案仓储（EF实现）
-        services.AddScoped<IUserProfileRepository, UserProfileRepositoryEF>();
+        // 注册统一的用户档案仓储
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
         return services;
     }

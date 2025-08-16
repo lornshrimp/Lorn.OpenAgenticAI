@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Lorn.OpenAgenticAI.Application.Services.Interfaces;
 using Lorn.OpenAgenticAI.Domain.Contracts;
+using Lorn.OpenAgenticAI.Domain.Contracts.Repositories;
 using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 
 namespace Lorn.OpenAgenticAI.Application.Services.Services;
@@ -11,12 +12,12 @@ namespace Lorn.OpenAgenticAI.Application.Services.Services;
 public class ShortcutService : IShortcutService
 {
     private readonly IUserShortcutRepository _shortcutRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserProfileRepository _userRepository;
     private readonly ILogger<ShortcutService> _logger;
 
     public ShortcutService(
         IUserShortcutRepository shortcutRepository,
-        IUserRepository userRepository,
+        IUserProfileRepository userRepository,
         ILogger<ShortcutService> logger)
     {
         _shortcutRepository = shortcutRepository ?? throw new ArgumentNullException(nameof(shortcutRepository));
@@ -536,3 +537,4 @@ public class ShortcutService : IShortcutService
 
     #endregion
 }
+

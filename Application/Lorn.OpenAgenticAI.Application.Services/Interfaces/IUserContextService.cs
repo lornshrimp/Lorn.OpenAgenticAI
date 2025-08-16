@@ -3,7 +3,17 @@ using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 namespace Lorn.OpenAgenticAI.Application.Services.Interfaces;
 
 /// <summary>
-/// 用户上下文服务接口，管理当前用户上下文信息
+/// 用户上下文会话服务（Session Scope）。
+/// 仅维护当前运行期（进程 / 线程关联）的活跃用户信息与轻量缓存：
+/// 1. 不直接执行业务规则验证（交由 <see cref="IUserManagementService"/>）。
+/// 2. 不直接进行持久化 CRUD（交由 <see cref="IUserDataService"/>）。
+/// 3. 提供获取 / 切换 / 清除 / 事件通知，用于 UI 与应用层其它组件感知用户切换。
+/// 4. 线程安全：实现内部并发访问保护，但不保证跨进程同步。
+/// 职责边界：变更用户档案或偏好前，应先通过管理服务完成业务校验，再刷新上下文。
+/// </summary>
+
+/// <summary>
+/// 用户上下文服务接口（会话与缓存层）—— 不直接做持久化 CRUD / 偏好设置写入
 /// </summary>
 public interface IUserContextService
 {
@@ -47,26 +57,6 @@ public interface IUserContextService
     Task<UserProfile?> GetCurrentUserProfileAsync();
 
     /// <summary>
-    /// 获取当前用户偏好设置
-    /// </summary>
-    /// <param name="category">偏好设置分类</param>
-    /// <param name="key">偏好设置键</param>
-    /// <param name="defaultValue">默认值</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>偏好设置值</returns>
-    Task<T?> GetCurrentUserPreferenceAsync<T>(string category, string key, T? defaultValue = default, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 设置当前用户偏好设置
-    /// </summary>
-    /// <param name="category">偏好设置分类</param>
-    /// <param name="key">偏好设置键</param>
-    /// <param name="value">偏好设置值</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>设置是否成功</returns>
-    Task<bool> SetCurrentUserPreferenceAsync<T>(string category, string key, T value, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// 检查当前是否有活跃的用户上下文
     /// </summary>
     /// <returns>是否有活跃的用户上下文</returns>
@@ -83,10 +73,6 @@ public interface IUserContextService
     /// </summary>
     event EventHandler<UserContextChangedEventArgs>? UserContextChanged;
 
-    /// <summary>
-    /// 用户偏好设置变更事件
-    /// </summary>
-    event EventHandler<UserPreferenceChangedEventArgs>? UserPreferenceChanged;
 }
 
 /// <summary>
@@ -258,41 +244,6 @@ public class UserContextChangedEventArgs : EventArgs
     public DateTime ChangeTime { get; set; } = DateTime.UtcNow;
 }
 
-/// <summary>
-/// 用户偏好设置变更事件参数
-/// </summary>
-public class UserPreferenceChangedEventArgs : EventArgs
-{
-    /// <summary>
-    /// 用户ID
-    /// </summary>
-    public Guid UserId { get; set; }
-
-    /// <summary>
-    /// 偏好设置分类
-    /// </summary>
-    public string Category { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 偏好设置键
-    /// </summary>
-    public string Key { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 旧值
-    /// </summary>
-    public object? OldValue { get; set; }
-
-    /// <summary>
-    /// 新值
-    /// </summary>
-    public object? NewValue { get; set; }
-
-    /// <summary>
-    /// 变更时间
-    /// </summary>
-    public DateTime ChangeTime { get; set; } = DateTime.UtcNow;
-}
 
 /// <summary>
 /// 用户上下文变更类型

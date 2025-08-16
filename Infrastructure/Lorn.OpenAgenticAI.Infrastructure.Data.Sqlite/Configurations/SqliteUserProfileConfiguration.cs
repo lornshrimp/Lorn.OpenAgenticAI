@@ -31,6 +31,10 @@ public class SqliteUserProfileConfiguration : IEntityTypeConfiguration<UserProfi
             .HasMaxLength(255)
             .IsRequired();
 
+        // 并发控制配置
+        builder.Property(x => x.ProfileVersion)
+            .IsConcurrencyToken();
+
         // 注意：Metadata 属性已经移除，现在通过 UserMetadataEntry 实体单独存储
         // 如果需要JSON存储，应该在 UserMetadataEntry 的配置中处理
 

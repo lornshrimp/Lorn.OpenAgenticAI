@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Lorn.OpenAgenticAI.Application.Services.Interfaces;
 using Lorn.OpenAgenticAI.Domain.Contracts;
+using Lorn.OpenAgenticAI.Domain.Contracts.Repositories;
 using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 
 namespace Lorn.OpenAgenticAI.Application.Services.Services;
@@ -11,12 +12,12 @@ namespace Lorn.OpenAgenticAI.Application.Services.Services;
 public class FavoriteService : IFavoriteService
 {
     private readonly IUserFavoriteRepository _favoriteRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserProfileRepository _userRepository;
     private readonly ILogger<FavoriteService> _logger;
 
     public FavoriteService(
         IUserFavoriteRepository favoriteRepository,
-        IUserRepository userRepository,
+        IUserProfileRepository userRepository,
         ILogger<FavoriteService> logger)
     {
         _favoriteRepository = favoriteRepository ?? throw new ArgumentNullException(nameof(favoriteRepository));
@@ -555,3 +556,4 @@ public class FavoriteService : IFavoriteService
 
     #endregion
 }
+

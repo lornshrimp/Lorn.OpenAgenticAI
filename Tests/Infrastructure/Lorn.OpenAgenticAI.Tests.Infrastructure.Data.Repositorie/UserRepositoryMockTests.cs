@@ -1,4 +1,5 @@
 using Lorn.OpenAgenticAI.Domain.Contracts;
+using Lorn.OpenAgenticAI.Domain.Contracts.Repositories;
 using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 using Lorn.OpenAgenticAI.Domain.Models.ValueObjects;
 using Moq;
@@ -22,11 +23,11 @@ namespace Lorn.OpenAgenticAI.Tests.Infrastructure.Data.Repositorie;
 /// </summary>
 public class UserRepositoryMockTestsFixed
 {
-    private readonly Mock<IUserRepository> _mockRepository;
+    private readonly Mock<IUserProfileRepository> _mockRepository;
 
     public UserRepositoryMockTestsFixed()
     {
-        _mockRepository = new Mock<IUserRepository>();
+        _mockRepository = new Mock<IUserProfileRepository>();
     }
 
     [Fact]
@@ -78,10 +79,10 @@ public class UserRepositoryMockTestsFixed
         // 对应需求1.3：WHEN 用户启动应用 THEN 系统 SHALL 自动识别当前机器并加载对应用户数据
         var username = "business-user-001";
         var expectedUser = CreateTestUserWithCompleteProfile(Guid.NewGuid(), username, "user@company.com");
-        _mockRepository.Setup(r => r.GetByUsernameAsync(username, default)).ReturnsAsync(expectedUser);
+        _mockRepository.Setup(r => r.GetByUserNameAsync(username, default)).ReturnsAsync(expectedUser);
 
         // Act
-        var result = await _mockRepository.Object.GetByUsernameAsync(username);
+        var result = await _mockRepository.Object.GetByUserNameAsync(username);
 
         // Assert - 验证业务规则：用户名查询必须返回完整的用户信息用于认证
         Assert.NotNull(result);
@@ -91,7 +92,7 @@ public class UserRepositoryMockTestsFixed
         Assert.NotNull(result.SecuritySettings); // 根据技术设计，用户必须包含安全设置信息
 
         // 验证技术设计：确保仓储接口被正确调用
-        _mockRepository.Verify(r => r.GetByUsernameAsync(username, default), Times.Once);
+        _mockRepository.Verify(r => r.GetByUserNameAsync(username, default), Times.Once);
     }
 
     [Fact]
@@ -140,49 +141,17 @@ public class UserRepositoryMockTestsFixed
     {
         // Arrange
         var user = CreateTestUser();
-        _mockRepository.Setup(r => r.UpdateAsync(user, default)).ReturnsAsync(user);
+        _mockRepository.Setup(r => r.UpdateAsync(user, default)).Returns(Task.CompletedTask);
 
         // Act
-        var result = await _mockRepository.Object.UpdateAsync(user);
+        await _mockRepository.Object.UpdateAsync(user);
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(user.UserId, result.UserId);
+        // Assert - 验证更新操作被调用
         _mockRepository.Verify(r => r.UpdateAsync(user, default), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteAsync_ShouldReturnTrue_WhenUserDeletedSuccessfully()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        _mockRepository.Setup(r => r.DeleteAsync(userId, default)).ReturnsAsync(true);
-
-        // Act
-        var result = await _mockRepository.Object.DeleteAsync(userId);
-
-        // Assert
-        Assert.True(result);
-        _mockRepository.Verify(r => r.DeleteAsync(userId, default), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldReturnFalse_WhenUserNotExists()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        _mockRepository.Setup(r => r.DeleteAsync(userId, default)).ReturnsAsync(false);
-
-        // Act
-        var result = await _mockRepository.Object.DeleteAsync(userId);
-
-        // Assert
-        Assert.False(result);
-        _mockRepository.Verify(r => r.DeleteAsync(userId, default), Times.Once);
-    }
-
-    [Fact]
-    public async Task SoftDeleteAsync_ShouldReturnTrue_WhenUserSoftDeletedSuccessfully()
+    public async Task SoftDeleteAsync_ShouldReturnTrue_WhenUserDeletedSuccessfully()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -208,6 +177,21 @@ public class UserRepositoryMockTestsFixed
 
         // Assert
         Assert.False(result);
+        _mockRepository.Verify(r => r.SoftDeleteAsync(userId, default), Times.Once);
+    }
+
+    [Fact]
+    public async Task SoftDeleteAsync_ShouldReturnTrue_WhenUserSoftDeletedSuccessfully()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        _mockRepository.Setup(r => r.SoftDeleteAsync(userId, default)).ReturnsAsync(true);
+
+        // Act
+        var result = await _mockRepository.Object.SoftDeleteAsync(userId);
+
+        // Assert
+        Assert.True(result);
         _mockRepository.Verify(r => r.SoftDeleteAsync(userId, default), Times.Once);
     }
 
@@ -320,15 +304,14 @@ public class UserRepositoryMockTestsFixed
         // 对应需求2.2：WHEN 用户点击编辑按钮 THEN 系统 SHALL 允许修改显示名称和个人描述
         var existingUser = CreateTestUserWithCompleteProfile(Guid.NewGuid(), "user-to-update", "old@company.com");
         existingUser.UpdateEmail("new@company.com");
-        _mockRepository.Setup(r => r.UpdateAsync(existingUser, default)).ReturnsAsync(existingUser);
+        _mockRepository.Setup(r => r.UpdateAsync(existingUser, default)).Returns(Task.CompletedTask);
 
         // Act
-        var result = await _mockRepository.Object.UpdateAsync(existingUser);
+        await _mockRepository.Object.UpdateAsync(existingUser);
 
         // Assert - 验证业务规则：更新操作必须正确处理版本控制
-        Assert.NotNull(result);
-        Assert.Equal("new@company.com", result.Email);
-        Assert.True(result.ProfileVersion > 1, "根据技术设计，更新操作必须增加版本号");
+        Assert.Equal("new@company.com", existingUser.Email);
+        Assert.True(existingUser.ProfileVersion > 1, "根据技术设计，更新操作必须增加版本号");
 
         _mockRepository.Verify(r => r.UpdateAsync(existingUser, default), Times.Once);
     }
@@ -427,11 +410,11 @@ public class UserRepositoryMockTestsFixed
     {
         // Arrange - 基于技术设计：系统必须优雅处理无效输入
         var emptyUsername = "";
-        _mockRepository.Setup(r => r.GetByUsernameAsync(emptyUsername, default))
+        _mockRepository.Setup(r => r.GetByUserNameAsync(emptyUsername, default))
                       .ThrowsAsync(new ArgumentException("Username cannot be null or empty", nameof(emptyUsername)));
 
         // Act & Assert - 验证错误处理：空用户名必须被正确处理
-        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _mockRepository.Object.GetByUsernameAsync(emptyUsername));
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _mockRepository.Object.GetByUserNameAsync(emptyUsername));
         Assert.Contains("Username cannot be null or empty", exception.Message);
     }
 
@@ -478,19 +461,19 @@ public class UserRepositoryMockTestsFixed
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenUserHasRelatedData_ShouldHandleCascadeDelete()
+    public async Task SoftDeleteAsync_WhenUserHasRelatedData_ShouldHandleCascadeDelete()
     {
         // Arrange - 基于业务需求：删除用户时必须处理关联数据
         // 对应需求6.6：系统必须清理相关数据
         var userIdWithRelatedData = Guid.NewGuid();
-        _mockRepository.Setup(r => r.DeleteAsync(userIdWithRelatedData, default)).ReturnsAsync(true);
+        _mockRepository.Setup(r => r.SoftDeleteAsync(userIdWithRelatedData, default)).ReturnsAsync(true);
 
         // Act
-        var result = await _mockRepository.Object.DeleteAsync(userIdWithRelatedData);
+        var result = await _mockRepository.Object.SoftDeleteAsync(userIdWithRelatedData);
 
         // Assert - 验证业务规则：删除操作必须成功处理关联数据
         Assert.True(result, "根据业务需求，删除操作必须成功处理关联数据");
-        _mockRepository.Verify(r => r.DeleteAsync(userIdWithRelatedData, default), Times.Once);
+        _mockRepository.Verify(r => r.SoftDeleteAsync(userIdWithRelatedData, default), Times.Once);
     }
 
     [Fact]

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using Xunit;
 using Microsoft.Extensions.Logging;
@@ -55,9 +56,9 @@ public class QuickAccessServiceTests
         SetupDefaultPanel();
         SetupItems();
         var panel = await _service.GetQuickAccessPanelAsync(_userId);
-        Assert.True(panel.IsEnabled);
-        Assert.Equal("Grid", panel.Layout);
-        Assert.Empty(panel.Items);
+        panel.IsEnabled.Should().BeTrue();
+        panel.Layout.Should().Be("Grid");
+        panel.Items.Should().BeEmpty();
     }
 
     [Fact]
@@ -67,7 +68,7 @@ public class QuickAccessServiceTests
         SetupDefaultPanel();
         _pref.Setup(p => p.SetPreferenceAsync(_userId, "QuickAccess", "Items", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         var result = await _service.AddQuickAccessItemAsync(_userId, new AddQuickAccessItemRequest("Doc", "1", "Spec", null, null, 2));
-        Assert.True(result.Success);
+        result.Success.Should().BeTrue();
     }
 
     [Fact]
@@ -77,7 +78,7 @@ public class QuickAccessServiceTests
         SetupItems(JsonSerializer.Serialize(new[] { item }));
         SetupDefaultPanel();
         var result = await _service.AddQuickAccessItemAsync(_userId, new AddQuickAccessItemRequest("Doc", "1", "Spec", null, null, 1));
-        Assert.False(result.Success);
+        result.Success.Should().BeFalse();
     }
 
     [Fact]
@@ -89,19 +90,19 @@ public class QuickAccessServiceTests
         var items = Enumerable.Range(0, max).Select(i => new QuickAccessItemDto("Doc", i.ToString(), "Item" + i, null, null, i, true, DateTime.UtcNow)).ToArray();
         SetupItems(JsonSerializer.Serialize(items));
         var result = await _service.AddQuickAccessItemAsync(_userId, new AddQuickAccessItemRequest("Doc", "X", "New", null, null, 99));
-        Assert.False(result.Success);
+        result.Success.Should().BeFalse();
     }
 
     [Fact]
     public async Task Recommend_MergesShortcutAndFavorites()
     {
         _shortcut.Setup(s => s.GetMostUsedShortcutsAsync(_userId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new[] { new ShortcutDto(Guid.NewGuid(), "Run", "Ctrl+R", "Action", null, null, "General", true, false, DateTime.UtcNow, null, 0, 10) });
+            .ReturnsAsync(new[] { new ShortcutDto(Guid.NewGuid(), "Run", "Ctrl+R", "Action", string.Empty, string.Empty, "General", true, false, DateTime.UtcNow, null, 0, 10) });
         _fav.Setup(f => f.GetMostAccessedFavoritesAsync(_userId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new[] { new FavoriteDto(Guid.NewGuid(), "Doc", "1", "Spec", "Docs", Array.Empty<string>(), "desc", 0, DateTime.UtcNow, DateTime.UtcNow, 5, true) });
         var recs = await _service.GetRecommendedQuickAccessItemsAsync(_userId, 6);
-        Assert.True(recs.Any(r => r.ItemType == "Shortcut"));
-        Assert.True(recs.Any(r => r.ItemType == "Doc"));
+        recs.Should().Contain(r => r.ItemType == "Shortcut");
+        recs.Should().Contain(r => r.ItemType == "Doc");
     }
 
     [Fact]
@@ -110,6 +111,6 @@ public class QuickAccessServiceTests
         _pref.Setup(p => p.SetPreferenceAsync(_userId, "QuickAccess", "PanelConfig", It.IsAny<QuickAccessPanelConfig>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _pref.Setup(p => p.SetPreferenceAsync(_userId, "QuickAccess", "Items", "[]", It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         var ok = await _service.ResetQuickAccessPanelAsync(_userId);
-        Assert.True(ok);
+        ok.Should().BeTrue();
     }
 }

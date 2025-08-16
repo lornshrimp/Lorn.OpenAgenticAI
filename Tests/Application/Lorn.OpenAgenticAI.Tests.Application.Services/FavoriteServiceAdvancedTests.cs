@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Lorn.OpenAgenticAI.Application.Services.Services;
 using Lorn.OpenAgenticAI.Application.Services.Interfaces;
 using Lorn.OpenAgenticAI.Domain.Contracts;
+using Lorn.OpenAgenticAI.Domain.Contracts.Repositories;
 using Lorn.OpenAgenticAI.Domain.Models.UserManagement;
 
 namespace Lorn.OpenAgenticAI.Tests.Application.Services;
@@ -17,7 +18,7 @@ public class FavoriteServiceAdvancedTests
 {
     private readonly Guid _userId = Guid.NewGuid();
     private readonly Mock<IUserFavoriteRepository> _favoriteRepo = new(MockBehavior.Strict);
-    private readonly Mock<IUserRepository> _userRepo = new(MockBehavior.Strict);
+    private readonly Mock<IUserProfileRepository> _userRepo = new(MockBehavior.Strict);
     private readonly Mock<ILogger<FavoriteService>> _logger = new();
     private readonly FavoriteService _service;
 
